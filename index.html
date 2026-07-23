@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTES-ICG | Plateforme d'inscription</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .password-container { position: relative; width: 100%; }
+        .password-container input { padding-right: 45px; }
+        .toggle-btn { position: absolute; right: 15px; top: 15px; background: none; border: none; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="container">
+    <!-- Carte de bienvenue -->
+    <div class="welcome-card" id="welcomeCard">
+        <img src="logo.jpeg" alt="Logo TTES-ICG" class="logo">
+        <h1>Bienvenue chez <span>TTES-ICG Academy</span></h1>
+        <p>Votre avenir commence aujourd'hui. Découvrez nos formations professionnelles et développez vos compétences.</p>
+        <button id="startBtn" type="button">Commencer l'inscription</button>
+    </div>
+
+    <!-- Carte de formulaire -->
+    <div class="form-card" id="formCard">
+        <h2>Créer un compte</h2>
+        <form id="registrationForm">
+            <input type="text" id="name" placeholder="Nom complet" required>
+            <input type="tel" id="phone" placeholder="Téléphone" required>
+            <input type="email" id="email" placeholder="Adresse e-mail" required>
+            
+            <label for="birthdate">Date de naissance</label>
+            <input type="date" id="birthdate" required>
+            
+            <div class="password-container">
+                <input type="password" id="password" placeholder="Mot de passe" required>
+                <button type="button" id="togglePassword" class="toggle-btn">👁️</button>
+            </div>
+            
+            <div class="password-container">
+                <input type="password" id="confirmPassword" placeholder="Confirmer mot de passe" required>
+                <button type="button" id="toggleConfirmPassword" class="toggle-btn">👁️</button>
+            </div>
+
+            <select id="formation" required>
+                <option value="">Choisir une formation</option>
+                <option>Intelligence artificielle</option>
+                <option>Auxiliaire de vie</option>
+                <option>Médecine</option>
+                <option>Couture</option>
+                <option>Marketing Digital</option>
+                <option>Multi Level Marketing</option>
+                <option>Coiffure professionnelle</option>
+            </select>
+
+            <button type="submit">Créer mon compte</button>
+            <p id="message" style="margin-top: 15px; text-align: center; font-weight: 500;"></p>
+        </form>
+    </div>
+    <!-- CARTE DE CONFIRMATION (Étape 2) -->
+    <div class="welcome-card" id="successCard" style="display: none;">
+        <h1 style="font-size: 28px;">Félicitations ! 🎉</h1>
+        <p id="successText">
+            Votre inscription a été enregistrée avec succès.
+        </p>
+        <button type="button" id="newRegistrationBtn">
+            Nouvelle inscription
+        </button>
+    </div>
+</div>
+
+<script src="script.js" defer></script>
+</body>
+</html>
