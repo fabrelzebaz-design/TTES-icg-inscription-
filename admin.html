@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin Pro - TTES-ICG</title>
+    <style>
+        /* Variables CSS pour un design cohérent et pro */
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --success: #10B981;
+            --bg-body: #F3F4F6;
+            --bg-card: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+        }
+        
+        * { box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-body); margin: 0; padding: 40px 20px; color: var(--text-main); }
+        
+        .container { 
+            max-width: 1100px; 
+            margin: auto; 
+            background: var(--bg-card); 
+            padding: 30px 40px; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+        }
+
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        h1 { margin: 0; font-size: 26px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        
+        .actions { display: flex; gap: 12px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px;}
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2); }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        .btn-success { background: var(--success); color: white; }
+        
+        /* Barre de recherche de génie */
+        .search-container { margin-bottom: 20px; position: relative; }
+        .search-input {
+            width: 100%;
+            padding: 12px 15px 12px 40px;
+            border: 1px solid #E5E7EB;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background: #F9FAFB url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%239CA3AF" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>') no-repeat 15px center;
+        }
+        .search-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); background-color: white; }
+
+        /* Le Tableau Pro */
+        table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        th, td { padding: 16px; text-align: left; border-bottom: 1px solid #F3F4F6; font-size: 14px; }
+        th { background-color: #F9FAFB; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; }
+        th:first-child { border-top-left-radius: 8px; } th:last-child { border-top-right-radius: 8px; }
+        tr { transition: background 0.2s ease; }
+        tr:hover { background-color: #F9FAFB; }
+        
+        /* Les Badges Premium */
+        .badge { background: #EEF2FF; color: var(--primary); padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 12px; letter-spacing: 0.3px; }
+        .id-text { color: var(--text-muted); font-family: monospace; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1> TTES-ICG Control Center</h1>
+        <div class="actions">
+            <button class="btn btn-primary" onclick="chargerInscriptions()">🔄 Actualiser</button>
+            <a href="/api/admin/export-csv" class="btn btn-success">📥 Export Excel</a>
+            <button class="btn" style="background:#EF4444; color:white;" onclick="deconnexion()">🚪 Déconnexion</button>
+        </div>
+    </div>
+
+    <!-- Moteur de recherche temps réel -->
+    <div class="search-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="Rechercher un étudiant par nom, email ou formation..." onkeyup="filtrerTableau()">
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom Complet</th>
+                <th>Contact</th>
+                <th>Formation</th>
+                <th>Date d'inscription</th>
+            </tr>
+        </thead>
+        <tbody id="tableauInscriptions">
+            <tr><td colspan="5" style="text-align: center; color: #6B7280; padding: 30px;">Chargement des données...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // Vérification de la session admin
+    if (localStorage.getItem('adminToken') !== 'session_admin_active_ttes_2026') {
+        window.location.href = '/login.html';
+    }
+
+    function deconnexion() {
+        localStorage.removeItem('adminToken');
+        window.location.href = '/login.html';
+    }
+    function deconnexion() {
+        localStorage.removeItem('adminToken'); // Efface la clé de connexion
+        window.location.href = '/login.html';   // Redirige immédiatement vers le login
+    }
+    async function chargerInscriptions() {
+        const tbody = document.getElementById('tableauInscriptions');
+        try {
+            const res = await fetch('/api/admin/inscriptions');
+            const data = await res.json();
+
+            if (data.success && data.inscriptions.length > 0) {
+                tbody.innerHTML = '';
+                data.inscriptions.forEach(user => {
+                    const tr = document.createElement('tr');
+                    // On simplifie l'affichage : le téléphone et l'email sont groupés dans "Contact"
+                    tr.innerHTML = `
+                        <td class="id-text">#${String(user.id).padStart(4, '0')}</td>
+                        <td style="font-weight: 600; color: #111827;">${user.nom}</td>
+                        <td>
+                            <div>${user.email}</div>
+                            <div style="color: #6B7280; font-size: 12px; margin-top: 4px;">📞 ${user.telephone}</div>
+                        </td>
+                        <td><span class="badge">${user.formation}</span></td>
+                        <td style="color: #6B7280;">${new Date(user.date_inscription).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #6B7280; padding: 30px;">Aucune inscription pour le moment.</td></tr>';
+            }
+        } catch (err) {
+            console.error(err);
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #EF4444; padding: 30px;">Erreur de connexion au serveur.</td></tr>';
+        }
+    }
+
+    // Le moteur de recherche instantané du Senior Dev
+    function filtrerTableau() {
+        const input = document.getElementById("searchInput");
+        const filter = input.value.toLowerCase();
+        const tbody = document.getElementById("tableauInscriptions");
+        const trs = tbody.getElementsByTagName("tr");
+
+        for (let i = 0; i < trs.length; i++) {
+            // Concatène tout le texte de la ligne pour chercher globalement
+            const rowText = trs[i].textContent.toLowerCase();
+            if (rowText.includes(filter)) {
+                trs[i].style.display = ""; // Affiche la ligne
+            } else {
+                trs[i].style.display = "none"; // Masque la ligne
+            }
+        }
+    }
+    // Charger les données au démarrage
+    document.addEventListener('DOMContentLoaded', chargerInscriptions);
+</script>
+</body>
+</html>

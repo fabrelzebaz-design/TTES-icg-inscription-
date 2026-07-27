@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", function () {
     setupPasswordToggle("password", "togglePassword");
     setupPasswordToggle("confirmPassword", "toggleConfirmPassword");
 
-    // 3. SOUMISSION DU FORMULAIRE ET SUCÈS (Étape 2)
+    // 3. SOUMISSION DU FORMULAIRE ET SUCÈS
     const form = document.getElementById("registrationForm");
     const message = document.getElementById("message");
     const password = document.getElementById("password");
@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const phone = document.getElementById("phone");
 
     if (form) {
-        form.addEventListener("submit", function (e) {
+        form.addEventListener("submit", async function (e) {
             e.preventDefault();
 
             // Longueur du mot de passe (6 car. min)
@@ -75,39 +75,63 @@ document.addEventListener("DOMContentLoaded", function () {
             const nomUtilisateur = document.getElementById("name").value;
             const formationChoisie = document.getElementById("formation").value;
 
-            // Récupération directe et propre de TOUTES les valeurs
             const utilisateur = {
-                nom: document.getElementById("name").value,
-                telephone: document.getElementById("phone").value,
+                nom: nomUtilisateur,
+                telephone: phone.value,
                 email: document.getElementById("email").value,
                 dateNaissance: document.getElementById("birthdate").value,
-                formation: document.getElementById("formation").value
+                formation: formationChoisie
             };
 
-            // Sauvegarde dans Local Storage
-            localStorage.setItem("utilisateurTTES", JSON.stringify(utilisateur));
+            // Message de chargement
+            message.style.color = "#007bff";
+            message.textContent = "⏳ Traitement de votre inscription par le serveur...";
 
-            // Sauvegarde dans le navigateur
-            localStorage.setItem("utilisateurTTES", JSON.stringify(utilisateur));
+            try {
+                // 🚀 ENVOI DES DONNÉES AU SERVEUR NODE.JS
+                const response = await fetch("http://localhost:3000/api/inscription", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(utilisateur)
+                });
 
-            // MASQUAGE DU FORMULAIRE & AFFICHAGE DE LA CARTE DE SUCCÈS
-            formCard.style.display = "none";
-            successCard.style.display = "block";
-            
-            // Personnalisation du message de félicitations
-            successText.innerHTML = `Bienvenue <strong>${nomUtilisateur}</strong> ! <br><br> Votre inscription pour la formation en <strong>${formationChoisie}</strong> a été enregistrée avec succès chez TTES-ICG Academy.`;
+                const result = await response.json();
 
-            // Réinitialisation du formulaire
-            form.reset();
-            message.textContent = "";
+                if (response.ok && result.success) {
+                    // Sauvegarde de secours dans le Local Storage
+                    localStorage.setItem("utilisateurTTES", JSON.stringify(utilisateur));
+
+                    // MASQUAGE DU FORMULAIRE & AFFICHAGE DE LA CARTE DE SUCCÈS
+                    formCard.style.display = "none";
+                    if (successCard) successCard.style.display = "block";
+                    
+                    // Personnalisation du message de félicitations
+                    if (successText) {
+                        successText.innerHTML = `Bienvenue <strong>${nomUtilisateur}</strong> ! <br><br> Votre inscription pour la formation en <strong>${formationChoisie}</strong> a été enregistrée avec succès chez TTES-ICG Academy.`;
+                    }
+
+                    // Réinitialisation du formulaire
+                    form.reset();
+                    message.textContent = "";
+                } else {
+                    message.style.color = "#FF6B6B";
+                    message.textContent = "❌ Error: " + (result.message || "Échec de l'enregistrement.");
+                }
+            } catch (error) {
+                console.error("Erreur d'envoi vers le serveur Node.js:", error);
+                message.style.color = "#FF6B6B";
+                message.textContent = "❌ Impossible de contacter le serveur TTES-ICG. Assure-toi que 'node server.js' tourne dans ton terminal !";
+            }
         });
     }
 
     // Bouton "Nouvelle inscription" (Retour à l'accueil)
     if (newRegistrationBtn) {
         newRegistrationBtn.addEventListener("click", function () {
-            successCard.style.display = "none";
-            welcomeCard.style.display = "block";
+            if (successCard) successCard.style.display = "none";
+            if (welcomeCard) welcomeCard.style.display = "block";
         });
     }
 });

@@ -28,6 +28,17 @@
             <input type="text" id="name" placeholder="Nom complet" required>
             <input type="tel" id="phone" placeholder="Téléphone" required>
             <input type="email" id="email" placeholder="Adresse e-mail" required>
+            <input 
+                     type="tel" 
+                     id="telephone" 
+                    name="telephone" 
+                    required 
+                    minlength="9" 
+                    maxlength="9" 
+                    pattern="[0-9]{9}" 
+                    title="Le numéro de téléphone doit comporter exactement 9 chiffres"
+                    placeholder="Ex: 699123456"
+                                                   >
             
             <label for="birthdate">Date de naissance</label>
             <input type="date" id="birthdate" required>
