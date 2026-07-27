@@ -14,9 +14,9 @@ let db;
 // Middlewares
 app.use(cors());
 app.use(express.json());
-app.use(express.static('.'));
+app.use(express.static(__dirname)); // Sert les fichiers statiques (index.html, login.html, etc.)
 
-// Fonction de sauvegarde de la BDD
+// Fonction de sauvegarde de la BDD localement
 function saveDatabase() {
     if (!db) return;
     const data = db.export();
@@ -53,16 +53,20 @@ async function initDB() {
 
 initDB().catch(console.error);
 
-// 1. ROUTE DE TEST
+// ==========================================
+// 1. ROUTE DE TEST DE SANTÉ DU SERVEUR
+// ==========================================
 app.get('/api/status', (req, res) => {
     res.json({ message: "Serveur TTES-ICG et Base de Données opérationnels !" });
 });
 
+// ==========================================
 // 2. ROUTE D'INSCRIPTION (POST)
+// ==========================================
 app.post('/api/inscription', (req, res) => {
     const { nom, telephone, email, dateNaissance, formation } = req.body;
 
-    // A. Vérification des champs obligatoires
+    // Validation des champs obligatoires
     if (!nom || !telephone || !email || !formation) {
         return res.status(400).json({ 
             success: false, 
@@ -70,7 +74,7 @@ app.post('/api/inscription', (req, res) => {
         });
     }
 
-    // B. ÉTAPE 1 : Validation du téléphone (exactement 9 chiffres)
+    // Validation du numéro à 9 chiffres
     const regexTel = /^[0-9]{9}$/;
     if (!regexTel.test(telephone)) {
         return res.status(400).json({ 
@@ -86,22 +90,85 @@ app.post('/api/inscription', (req, res) => {
         );
 
         saveDatabase();
-        console.log(`💾 Inscription enregistrée en BDD pour : ${nom}`);
+
+        // Récupérer l'ID créé pour rediriger l'étudiant vers son dashboard
+        const stmt = db.prepare("SELECT last_insert_rowid() as id");
+        stmt.step();
+        const newId = stmt.getAsObject().id;
+        stmt.free();
+
+        console.log(`💾 Inscription réussie ID #${newId} : ${nom}`);
 
         res.status(201).json({
             success: true,
+            id: newId,
             message: "Inscription enregistrée avec succès !"
         });
     } catch (error) {
         console.error("Erreur BDD :", error);
         res.status(500).json({
             success: false,
-            message: "Erreur lors de l'enregistrement dans la base de données."
+            message: "Erreur lors de l'enregistrement."
         });
     }
 });
 
-// 🔑 ROUTE DE CONNEXION ADMIN
+// ==========================================
+// 3. ESPACE ÉTUDIANT : RECUPERER & MODIFIER
+// ==========================================
+
+// Récupérer les infos d'un étudiant par son ID
+app.get('/api/etudiant/:id', (req, res) => {
+    try {
+        const stmt = db.prepare("SELECT * FROM utilisateurs WHERE id = ?");
+        stmt.bind([req.params.id]);
+        
+        if (stmt.step()) {
+            const etudiant = stmt.getAsObject();
+            stmt.free();
+            return res.json({ success: true, etudiant });
+        } else {
+            stmt.free();
+            return res.status(404).json({ success: false, message: "Étudiant non trouvé." });
+        }
+    } catch (error) {
+        console.error("Erreur étudiant :", error);
+        res.status(500).json({ success: false, message: "Erreur serveur." });
+    }
+});
+
+// Modifier les données d'un étudiant (PUT)
+app.put('/api/etudiant/:id', (req, res) => {
+    const { nom, telephone, email, dateNaissance, formation } = req.body;
+    const { id } = req.params;
+
+    const regexTel = /^[0-9]{9}$/;
+    if (telephone && !regexTel.test(telephone)) {
+        return res.status(400).json({ 
+            success: false, 
+            message: "Le téléphone doit contenir exactement 9 chiffres." 
+        });
+    }
+
+    try {
+        db.run(
+            `UPDATE utilisateurs SET nom=?, telephone=?, email=?, dateNaissance=?, formation=? WHERE id=?`,
+            [nom, telephone, email, dateNaissance, formation, id]
+        );
+        saveDatabase();
+        console.log(`✏️ Profil mis à jour pour l'étudiant #${id}`);
+        res.json({ success: true, message: "Modifications enregistrées !" });
+    } catch (error) {
+        console.error("Erreur mise à jour :", error);
+        res.status(500).json({ success: false, message: "Erreur lors de la modification." });
+    }
+});
+
+// ==========================================
+// 4. ESPACE ADMIN (CONNEXION & RAPPORTS)
+// ==========================================
+
+// Connexion Admin
 app.post('/api/admin/login', (req, res) => {
     const { username, password } = req.body;
     
@@ -115,11 +182,11 @@ app.post('/api/admin/login', (req, res) => {
     }
 });
 
-// 3. ROUTE POUR L'ESPACE ADMIN (GET)
+// Liste de toutes les inscriptions (GET Admin)
 app.get('/api/admin/inscriptions', (req, res) => {
     try {
         if (!db) {
-            return res.status(500).json({ success: false, message: "Base de données non initialisée" });
+            return res.status(500).json({ success: false, message: "Base de données non disponible" });
         }
 
         const stmt = db.prepare("SELECT * FROM utilisateurs ORDER BY id DESC");
@@ -135,12 +202,12 @@ app.get('/api/admin/inscriptions', (req, res) => {
             inscriptions: utilisateurs
         });
     } catch (error) {
-        console.error("Erreur lors de la récupération :", error);
+        console.error("Erreur récupération admin :", error);
         res.status(500).json({ success: false, message: "Erreur serveur" });
     }
 });
 
-// 4. ROUTE EXPORT EXCEL CSV (GET)
+// Export CSV / Excel
 app.get('/api/admin/export-csv', (req, res) => {
     try {
         if (!db) return res.status(500).send("Base de données indisponible");
@@ -159,21 +226,17 @@ app.get('/api/admin/export-csv', (req, res) => {
         res.status(200).send('\uFEFF' + csv);
     } catch (error) {
         console.error("Erreur d'exportation :", error);
-        res.status(500).send("Erreur lors de la génération du fichier CSV");
+        res.status(500).send("Erreur lors de la génération du CSV");
     }
 });
-// --- CONFIGURATION DES FICHIERS STATIQUES ET ROUTE PRINCIPALE ---
-const path = require('path');
 
-// Permet à Express de servir tes fichiers HTML, CSS, images et JS client
-app.use(express.static(__dirname));
-
-// Redirige la racine (/) vers index.html
+// ==========================================
+// 5. ROUTE RACINE & DÉMARRAGE DU SERVEUR
+// ==========================================
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Démarrage du serveur
 app.listen(PORT, () => {
     console.log(`🚀 Serveur TTES-ICG démarré sur http://localhost:${PORT}`);
 });

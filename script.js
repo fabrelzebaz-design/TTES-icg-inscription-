@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const welcomeCard = document.getElementById("welcomeCard");
     const formCard = document.getElementById("formCard");
     
-    // NOUVEAUX ÉLÉMENTS (Étape 2)
+    // NOUVEAUX ÉLÉMENTS
     const successCard = document.getElementById("successCard");
     const successText = document.getElementById("successText");
     const newRegistrationBtn = document.getElementById("newRegistrationBtn");
@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", function () {
     setupPasswordToggle("password", "togglePassword");
     setupPasswordToggle("confirmPassword", "toggleConfirmPassword");
 
-    // 3. SOUMISSION DU FORMULAIRE ET SUCÈS
+    // 3. SOUMISSION DU FORMULAIRE ET SUCCÈS
     const form = document.getElementById("registrationForm");
     const message = document.getElementById("message");
     const password = document.getElementById("password");
@@ -50,24 +50,24 @@ document.addEventListener("DOMContentLoaded", function () {
             e.preventDefault();
 
             // Longueur du mot de passe (6 car. min)
-            if (password.value.length < 6) {
+            if (password && password.value.length < 6) {
                 message.style.color = "#FF6B6B";
                 message.textContent = "❌ Le mot de passe doit contenir au moins 6 caractères !";
                 return;
             }
 
             // Mots de passe identiques
-            if (password.value !== confirmPassword.value) {
+            if (password && confirmPassword && password.value !== confirmPassword.value) {
                 message.style.color = "#FF6B6B";
                 message.textContent = "❌ Les mots de passe ne sont pas identiques !";
                 return;
             }
 
-            // Téléphone valide
-            const phoneRegex = /^[0-9+\s]{8,}$/;
+            // Téléphone valide (exactement 9 chiffres pour le Cameroun)
+            const phoneRegex = /^[0-9]{9}$/;
             if (!phoneRegex.test(phone.value.trim())) {
                 message.style.color = "#FF6B6B";
-                message.textContent = "❌ Veuillez entrer un numéro de téléphone valide !";
+                message.textContent = "❌ Veuillez entrer un numéro de téléphone valide à 9 chiffres (ex: 699123456) !";
                 return;
             }
 
@@ -77,9 +77,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const utilisateur = {
                 nom: nomUtilisateur,
-                telephone: phone.value,
+                telephone: phone.value.trim(),
                 email: document.getElementById("email").value,
-                dateNaissance: document.getElementById("birthdate").value,
+                dateNaissance: document.getElementById("birthdate") ? document.getElementById("birthdate").value : "",
                 formation: formationChoisie
             };
 
@@ -88,8 +88,8 @@ document.addEventListener("DOMContentLoaded", function () {
             message.textContent = "⏳ Traitement de votre inscription par le serveur...";
 
             try {
-                // 🚀 ENVOI DES DONNÉES AU SERVEUR NODE.JS
-                const response = await fetch("http://localhost:3000/api/inscription", {
+                // 🚀 ENVOI DES DONNÉES AU SERVEUR (URL RELATIVE POUR L'HÉBERGEMENT)
+                const response = await fetch("/api/inscription", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -103,26 +103,30 @@ document.addEventListener("DOMContentLoaded", function () {
                     // Sauvegarde de secours dans le Local Storage
                     localStorage.setItem("utilisateurTTES", JSON.stringify(utilisateur));
 
-                    // MASQUAGE DU FORMULAIRE & AFFICHAGE DE LA CARTE DE SUCCÈS
+                    // 🎯 SI LE SERVEUR RENVOIE UN ID, ON REDIRIGE VERS SON DASHBOARD ÉTUDIANT
+                    if (result.id) {
+                        window.location.href = `/espace-etudiant.html?id=${result.id}`;
+                        return;
+                    }
+
+                    // SINON MASQUAGE DU FORMULAIRE & AFFICHAGE DE LA CARTE DE SUCCÈS
                     formCard.style.display = "none";
                     if (successCard) successCard.style.display = "block";
                     
-                    // Personnalisation du message de félicitations
                     if (successText) {
                         successText.innerHTML = `Bienvenue <strong>${nomUtilisateur}</strong> ! <br><br> Votre inscription pour la formation en <strong>${formationChoisie}</strong> a été enregistrée avec succès chez TTES-ICG Academy.`;
                     }
 
-                    // Réinitialisation du formulaire
                     form.reset();
                     message.textContent = "";
                 } else {
                     message.style.color = "#FF6B6B";
-                    message.textContent = "❌ Error: " + (result.message || "Échec de l'enregistrement.");
+                    message.textContent = "❌ Erreur: " + (result.message || "Échec de l'enregistrement.");
                 }
             } catch (error) {
-                console.error("Erreur d'envoi vers le serveur Node.js:", error);
+                console.error("Erreur d'envoi vers le serveur :", error);
                 message.style.color = "#FF6B6B";
-                message.textContent = "❌ Impossible de contacter le serveur TTES-ICG. Assure-toi que 'node server.js' tourne dans ton terminal !";
+                message.textContent = "❌ Erreur de connexion au serveur. Réessayez dans un instant.";
             }
         });
     }

@@ -16,6 +16,7 @@
         input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
         button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
         button:hover { background: #4338CA; }
+        button:disabled { background: #9CA3AF; cursor: not-allowed; }
         .error { color: #EF4444; font-size: 14px; text-align: center; margin-top: 15px; display: none; }
     </style>
 </head>
@@ -32,7 +33,7 @@
             <label>Mot de passe</label>
             <input type="password" id="password" required>
         </div>
-        <button type="submit">Se connecter</button>
+        <button type="submit" id="submitBtn">Se connecter</button>
         <div id="errorMsg" class="error">Identifiants incorrects !</div>
     </form>
 </div>
@@ -43,6 +44,12 @@
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         const errorMsg = document.getElementById('errorMsg');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Réinitialisation de l'affichage
+        errorMsg.style.display = 'none';
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Connexion en cours...";
 
         try {
             const res = await fetch('/api/admin/login', {
@@ -58,12 +65,16 @@
                 localStorage.setItem('adminToken', data.token);
                 window.location.href = '/admin.html';
             } else {
+                errorMsg.textContent = data.message || "Identifiants incorrects !";
                 errorMsg.style.display = 'block';
             }
         } catch (err) {
             console.error(err);
-            errorMsg.textContent = "Erreur de connexion au serveur.";
+            errorMsg.textContent = "Le serveur se réveille, réessayez dans 20 secondes...";
             errorMsg.style.display = 'block';
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Se connecter";
         }
     });
 </script>

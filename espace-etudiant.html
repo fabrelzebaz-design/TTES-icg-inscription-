@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Espace Étudiant - TTES-ICG</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #F3F4F6; display: flex; justify-content: center; padding: 40px 20px; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
+        h2 { color: #1E40AF; margin-top: 0; }
+        .field { margin-bottom: 15px; }
+        label { font-weight: bold; display: block; margin-bottom: 5px; color: #374151; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #D1D5DB; border-radius: 6px; font-size: 15px; }
+        input:disabled, select:disabled { background: #F3F4F6; color: #6B7280; }
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        button { flex: 1; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .btn-edit { background: #F59E0B; color: white; }
+        .btn-save { background: #10B981; color: white; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>🎓 Mon Espace Inscription</h2>
+    <p style="color: #6B7280; font-size: 14px;">Vérifiez ou modifiez vos informations ci-dessous.</p>
+
+    <form id="studentForm">
+        <div class="field">
+            <label>Nom complet</label>
+            <input type="text" id="nom" disabled required>
+        </div>
+        <div class="field">
+            <label>Téléphone (9 chiffres)</label>
+            <input type="tel" id="telephone" maxlength="9" disabled required>
+        </div>
+        <div class="field">
+            <label>Email</label>
+            <input type="email" id="email" disabled required>
+        </div>
+        <div class="field">
+            <label>Formation choisie</label>
+            <select id="formation" disabled required>
+                <option value="Informatique">Informatique</option>
+                <option value="Gestion">Gestion</option>
+                <option value="Marketing">Marketing</option>
+                <option value="Comptabilité">Comptabilité</option>
+            </select>
+        </div>
+
+        <div class="btn-group">
+            <button type="button" id="btnEdit" class="btn-edit" onclick="activerModification()">✏️ Modifier mes données</button>
+            <button type="submit" id="btnSave" class="btn-save">💾 Enregistrer les changements</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Récupère l'ID dans l'URL (ex: espace-etudiant.html?id=5)
+    const urlParams = new URLSearchParams(window.location.search);
+    const studentId = urlParams.get('id');
+
+    // Charger les infos au démarrage
+    async function chargerEtudiant() {
+        if (!studentId) return alert("Aucun étudiant spécifié.");
+        
+        const res = await fetch('/api/admin/inscriptions');
+        const data = await res.json();
+        const etudiant = data.inscriptions.find(u => u.id == studentId);
+
+        if (etudiant) {
+            document.getElementById('nom').value = etudiant.nom;
+            document.getElementById('telephone').value = etudiant.telephone;
+            document.getElementById('email').value = etudiant.email;
+            document.getElementById('formation').value = etudiant.formation;
+        }
+    }
+
+    function activerModification() {
+        // Débloquer les champs
+        document.querySelectorAll('#studentForm input, #studentForm select').forEach(el => el.disabled = false);
+        document.getElementById('btnEdit').style.display = 'none';
+        document.getElementById('btnSave').style.display = 'block';
+    }
+
+    document.getElementById('studentForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const body = {
+            nom: document.getElementById('nom').value,
+            telephone: document.getElementById('telephone').value,
+            email: document.getElementById('email').value,
+            formation: document.getElementById('formation').value
+        };
+
+        const res = await fetch(`/api/inscription/${studentId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+
+        const result = await res.json();
+        alert(result.message);
+
+        if (result.success) {
+            location.reload(); // Recharger la page en mode verrouillé
+        }
+    });
+
+    chargerEtudiant();
+</script>
+
+</body>
+</html>
