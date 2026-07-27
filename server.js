@@ -162,6 +162,16 @@ app.get('/api/admin/export-csv', (req, res) => {
         res.status(500).send("Erreur lors de la génération du fichier CSV");
     }
 });
+// --- CONFIGURATION DES FICHIERS STATIQUES ET ROUTE PRINCIPALE ---
+const path = require('path');
+
+// Permet à Express de servir tes fichiers HTML, CSS, images et JS client
+app.use(express.static(__dirname));
+
+// Redirige la racine (/) vers index.html
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 // Démarrage du serveur
 app.listen(PORT, () => {
