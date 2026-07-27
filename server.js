@@ -153,17 +153,23 @@ app.get('/api/admin/inscriptions', async (req, res) => {
 });
 
 // Export CSV / Excel
+// Export CSV / Excel Optimisé pour Excel Français
 app.get('/api/admin/export-csv', async (req, res) => {
     try {
         const result = await pool.query("SELECT * FROM utilisateurs ORDER BY id DESC");
-        let csv = "ID,Nom,Telephone,Email,Date Naissance,Formation,Date Inscription\n";
+        
+        // En-têtes avec séparateur point-virgule (;)
+        let csv = "ID;Nom complet;Téléphone;Email;Date de naissance;Formation;Date d'inscription\n";
 
         result.rows.forEach(row => {
-            csv += `"${row.id}","${row.nom}","${row.telephone}","${row.email}","${row.date_naissance || ''}","${row.formation}","${row.date_inscription}"\n`;
+            const dateInscrip = row.date_inscription ? new Date(row.date_inscription).toLocaleDateString('fr-FR') : '';
+            csv += `"${row.id}";"${row.nom}";"${row.telephone}";"${row.email}";"${row.date_naissance || ''}";"${row.formation}";"${dateInscrip}"\n`;
         });
 
         res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-        res.setHeader('Content-Disposition', 'attachment; filename=inscriptions_ttes_icg.csv');
+        res.setHeader('Content-Disposition', 'attachment; filename=Inscriptions_TTES_ICG.csv');
+        
+        // \uFEFF ajoute le BOM UTF-8 indispensable pour qu'Excel gère bien les accents
         res.status(200).send('\uFEFF' + csv);
     } catch (error) {
         console.error("Erreur d'exportation :", error);

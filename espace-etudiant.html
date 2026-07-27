@@ -16,13 +16,37 @@
         button { flex: 1; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
         .btn-edit { background: #F59E0B; color: white; }
         .btn-save { background: #10B981; color: white; display: none; }
+        .btn-pdf {
+    background-color: #059669;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.3s;
+}
+.btn-pdf:hover {
+    background-color: #047857;
+}
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
 <div class="card">
     <h2>🎓 Mon Espace Inscription</h2>
     <p style="color: #6B7280; font-size: 14px;">Vérifiez ou modifiez vos informations ci-dessous.</p>
+    <div style="margin-bottom: 20px; text-align: right;">
+        <button id="btn-pdf" type="button" onclick="telechargerPDF()" class="btn-pdf">
+            📄 Télécharger ma Fiche d'Inscription (PDF)
+        </button>
+    </div>
 
     <form id="studentForm">
         <div class="field">
@@ -58,14 +82,15 @@
 </div>
 
 <script>
+    // 1. Récupération de l'ID depuis l'URL
     const urlParams = new URLSearchParams(window.location.search);
     const studentId = urlParams.get('id');
 
+    // 2. Fonction de chargement des données étudiant
     async function chargerEtudiant() {
-        if (!studentId) return alert("Aucun étudiant spécifié.");
+        if (!studentId) return alert("Aucun étudiant spécifié dans l'URL.");
         
         try {
-            // CORRECTION : Appel direct de la route dédiée étudiant
             const res = await fetch(`/api/etudiant/${studentId}`);
             const data = await res.json();
 
@@ -82,44 +107,69 @@
         }
     }
 
+    // 3. Activation de la modification des champs
     function activerModification() {
         document.querySelectorAll('#studentForm input, #studentForm select').forEach(el => el.disabled = false);
-        document.getElementById('btnEdit').style.display = 'none';
-        document.getElementById('btnSave').style.display = 'block';
+        if (document.getElementById('btnEdit')) document.getElementById('btnEdit').style.display = 'none';
+        if (document.getElementById('btnSave')) document.getElementById('btnSave').style.display = 'block';
     }
 
-    document.getElementById('studentForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const body = {
-            nom: document.getElementById('nom').value,
-            telephone: document.getElementById('telephone').value,
-            email: document.getElementById('email').value,
-            formation: document.getElementById('formation').value
+    // 4. Fonction de téléchargement du PDF professionnel
+    function telechargerPDF() {
+        // Sélectionne le conteneur principal de la carte / fiche
+        const element = document.querySelector('.container') || document.querySelector('.card') || document.body;
+
+        const opt = {
+            margin:       10,
+            filename:     `Attestation_Inscription_TTES_${studentId || 'Etudiant'}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        try {
-            // CORRECTION : Utilisation de la route PUT /api/etudiant/:id
-            const res = await fetch(`/api/etudiant/${studentId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
+        if (typeof html2pdf !== 'undefined') {
+            html2pdf().set(opt).from(element).save();
+        } else {
+            alert("Erreur : La bibliothèque html2pdf n'est pas chargée. Vérifiez que la balise <script> est présente dans la balise <head>.");
+        }
+    }
+
+    // 5. Initialisation des événements une fois le DOM chargé
+    document.addEventListener("DOMContentLoaded", () => {
+        // Charger les données de l'étudiant
+        chargerEtudiant();
+
+        // Écouteur sur la soumission du formulaire
+        const studentForm = document.getElementById('studentForm');
+        if (studentForm) {
+            studentForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const body = {
+                    nom: document.getElementById('nom').value,
+                    telephone: document.getElementById('telephone').value,
+                    email: document.getElementById('email').value,
+                    formation: document.getElementById('formation').value
+                };
+
+                try {
+                    const res = await fetch(`/api/etudiant/${studentId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body)
+                    });
+
+                    const result = await res.json();
+                    alert(result.message);
+
+                    if (result.success) {
+                        location.reload();
+                    }
+                } catch (err) {
+                    console.error("Erreur de sauvegarde :", err);
+                    alert("Échec de la mise à jour.");
+                }
             });
-
-            const result = await res.json();
-            alert(result.message);
-
-            if (result.success) {
-                location.reload();
-            }
-        } catch (err) {
-            console.error("Erreur de sauvegarde :", err);
-            alert("Échec de la mise à jour.");
         }
     });
-
-    chargerEtudiant();
 </script>
-
-</body>
-</html>
