@@ -9,7 +9,7 @@
         .password-container { position: relative; width: 100%; }
         .password-container input { padding-right: 45px; }
         .toggle-btn { position: absolute; right: 15px; top: 15px; background: none; border: none; cursor: pointer; }
-</style>
+    </style>
 </head>
 <body>
 <div class="container">
@@ -26,25 +26,27 @@
         <h2>Créer un compte</h2>
         <form id="registrationForm">
             <input type="text" id="name" placeholder="Nom complet" required>
-            <input type="tel" id="phone" placeholder="Téléphone" required>
-            <input type="email" id="email" placeholder="Adresse e-mail" required>
-            <input 
-                     type="tel" 
-                     id="telephone" 
-                    name="telephone" 
-                    required 
-                    minlength="9" 
-                    maxlength="9" 
-                    pattern="[0-9]{9}" 
-                    title="Le numéro de téléphone doit comporter exactement 9 chiffres"
-                    placeholder="Ex: 699123456"
-                                                   >
             
-            <label for="birthdate">Date de naissance</label>
+            <!-- Champ téléphone unique nettoyé -->
+            <input 
+                type="tel" 
+                id="phone" 
+                name="telephone" 
+                required 
+                minlength="9" 
+                maxlength="9" 
+                pattern="[0-9]{9}" 
+                title="Le numéro de téléphone doit comporter exactement 9 chiffres"
+                placeholder="Téléphone (Ex: 699123456)"
+            >
+            
+            <input type="email" id="email" placeholder="Adresse e-mail" required>
+            
+            <label for="birthdate" style="display:block; margin-top:10px; font-size:14px;">Date de naissance</label>
             <input type="date" id="birthdate" required>
             
             <div class="password-container">
-                <input type="password" id="password" placeholder="Mot de passe" required>
+                <input type="password" id="password" placeholder="Mot de passe (min. 6 caractères)" required>
                 <button type="button" id="togglePassword" class="toggle-btn">👁️</button>
             </div>
             
@@ -55,28 +57,18 @@
 
             <select id="formation" required>
                 <option value="">Choisir une formation</option>
-                <option>Intelligence artificielle</option>
-                <option>Auxiliaire de vie</option>
-                <option>Médecine</option>
-                <option>Couture</option>
-                <option>Marketing Digital</option>
-                <option>Multi Level Marketing</option>
-                <option>Coiffure professionnelle</option>
+                <option value="Intelligence artificielle">Intelligence artificielle</option>
+                <option value="Auxiliaire de vie">Auxiliaire de vie</option>
+                <option value="Médecine">Médecine</option>
+                <option value="Couture">Couture</option>
+                <option value="Marketing Digital">Marketing Digital</option>
+                <option value="Multi Level Marketing">Multi Level Marketing</option>
+                <option value="Coiffure professionnelle">Coiffure professionnelle</option>
             </select>
 
             <button type="submit">Créer mon compte</button>
             <p id="message" style="margin-top: 15px; text-align: center; font-weight: 500;"></p>
         </form>
-    </div>
-    <!-- CARTE DE CONFIRMATION (Étape 2) -->
-    <div class="welcome-card" id="successCard" style="display: none;">
-        <h1 style="font-size: 28px;">Félicitations ! 🎉</h1>
-        <p id="successText">
-            Votre inscription a été enregistrée avec succès.
-        </p>
-        <button type="button" id="newRegistrationBtn">
-            Nouvelle inscription
-        </button>
     </div>
 </div>
 

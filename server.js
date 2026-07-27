@@ -1,72 +1,58 @@
 const express = require('express');
 const cors = require('cors');
-const initSqlJs = require('sql.js');
-const fs = require('fs');
+const { Pool } = require('pg');
 const path = require('path');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const DB_FILE = path.join(__dirname, 'database.sqlite');
 
-let db;
+// Connexion à la base de données PostgreSQL (Neon / Render)
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
+});
 
 // Middlewares
 app.use(cors());
 app.use(express.json());
-app.use(express.static(__dirname)); // Sert les fichiers statiques (index.html, login.html, etc.)
+app.use(express.static(__dirname));
 
-// Fonction de sauvegarde de la BDD localement
-function saveDatabase() {
-    if (!db) return;
-    const data = db.export();
-    const buffer = Buffer.from(data);
-    fs.writeFileSync(DB_FILE, buffer);
-}
-
-// Initialisation de la BDD SQLite
+// Initialisation automatique de la table PostgreSQL
 async function initDB() {
-    const SQL = await initSqlJs();
-
-    if (fs.existsSync(DB_FILE)) {
-        const filebuffer = fs.readFileSync(DB_FILE);
-        db = new SQL.Database(filebuffer);
-    } else {
-        db = new SQL.Database();
+    try {
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS utilisateurs (
+                id SERIAL PRIMARY KEY,
+                nom VARCHAR(255) NOT NULL,
+                telephone VARCHAR(20) NOT NULL,
+                email VARCHAR(255) NOT NULL,
+                date_naissance VARCHAR(50),
+                formation VARCHAR(255) NOT NULL,
+                date_inscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+        console.log("🗄️ Base de données PostgreSQL prête et connectée !");
+    } catch (err) {
+        console.error("❌ Erreur lors de l'initialisation de PostgreSQL :", err);
     }
-
-    db.run(`
-        CREATE TABLE IF NOT EXISTS utilisateurs (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nom TEXT NOT NULL,
-            telephone TEXT NOT NULL,
-            email TEXT NOT NULL,
-            dateNaissance TEXT,
-            formation TEXT NOT NULL,
-            date_inscription DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    `);
-
-    saveDatabase();
-    console.log("🗄️ Base de données SQLite prête et connectée !");
 }
 
-initDB().catch(console.error);
+initDB();
 
 // ==========================================
-// 1. ROUTE DE TEST DE SANTÉ DU SERVEUR
+// 1. ROUTE DE TEST DE SANTÉ
 // ==========================================
 app.get('/api/status', (req, res) => {
-    res.json({ message: "Serveur TTES-ICG et Base de Données opérationnels !" });
+    res.json({ message: "Serveur TTES-ICG et PostgreSQL opérationnels !" });
 });
 
 // ==========================================
 // 2. ROUTE D'INSCRIPTION (POST)
 // ==========================================
-app.post('/api/inscription', (req, res) => {
+app.post('/api/inscription', async (req, res) => {
     const { nom, telephone, email, dateNaissance, formation } = req.body;
 
-    // Validation des champs obligatoires
     if (!nom || !telephone || !email || !formation) {
         return res.status(400).json({ 
             success: false, 
@@ -74,89 +60,67 @@ app.post('/api/inscription', (req, res) => {
         });
     }
 
-    // Validation du numéro à 9 chiffres
     const regexTel = /^[0-9]{9}$/;
     if (!regexTel.test(telephone)) {
         return res.status(400).json({ 
             success: false, 
-            message: "Le numéro de téléphone doit contenir exactement 9 chiffres (ex: 699123456)." 
+            message: "Le numéro de téléphone doit contenir exactement 9 chiffres." 
         });
     }
 
     try {
-        db.run(
-            `INSERT INTO utilisateurs (nom, telephone, email, dateNaissance, formation) VALUES (?, ?, ?, ?, ?)`,
+        // "RETURNING id" renvoie directement l'ID généré par PostgreSQL
+        const result = await pool.query(
+            `INSERT INTO utilisateurs (nom, telephone, email, date_naissance, formation) 
+             VALUES ($1, $2, $3, $4, $5) RETURNING id`,
             [nom, telephone, email, dateNaissance, formation]
         );
 
-        saveDatabase();
-
-        // Récupérer l'ID créé pour rediriger l'étudiant vers son dashboard
-        const stmt = db.prepare("SELECT last_insert_rowid() as id");
-        stmt.step();
-        const newId = stmt.getAsObject().id;
-        stmt.free();
-
+        const newId = result.rows[0].id;
         console.log(`💾 Inscription réussie ID #${newId} : ${nom}`);
 
-        res.status(201).json({
+        return res.status(201).json({
             success: true,
             id: newId,
             message: "Inscription enregistrée avec succès !"
         });
+
     } catch (error) {
-        console.error("Erreur BDD :", error);
-        res.status(500).json({
+        console.error("Erreur PostgreSQL :", error);
+        return res.status(500).json({
             success: false,
-            message: "Erreur lors de l'enregistrement."
+            message: "Erreur lors de l'enregistrement en BDD."
         });
     }
 });
 
 // ==========================================
-// 3. ESPACE ÉTUDIANT : RECUPERER & MODIFIER
+// 3. ESPACE ÉTUDIANT (GET & PUT)
 // ==========================================
-
-// Récupérer les infos d'un étudiant par son ID
-app.get('/api/etudiant/:id', (req, res) => {
+app.get('/api/etudiant/:id', async (req, res) => {
     try {
-        const stmt = db.prepare("SELECT * FROM utilisateurs WHERE id = ?");
-        stmt.bind([req.params.id]);
+        const result = await pool.query("SELECT * FROM utilisateurs WHERE id = $1", [req.params.id]);
         
-        if (stmt.step()) {
-            const etudiant = stmt.getAsObject();
-            stmt.free();
-            return res.json({ success: true, etudiant });
+        if (result.rows.length > 0) {
+            return res.json({ success: true, etudiant: result.rows[0] });
         } else {
-            stmt.free();
             return res.status(404).json({ success: false, message: "Étudiant non trouvé." });
         }
     } catch (error) {
-        console.error("Erreur étudiant :", error);
+        console.error("Erreur serveur :", error);
         res.status(500).json({ success: false, message: "Erreur serveur." });
     }
 });
 
-// Modifier les données d'un étudiant (PUT)
-app.put('/api/etudiant/:id', (req, res) => {
-    const { nom, telephone, email, dateNaissance, formation } = req.body;
+app.put('/api/etudiant/:id', async (req, res) => {
+    const { nom, telephone, email, formation } = req.body;
     const { id } = req.params;
 
-    const regexTel = /^[0-9]{9}$/;
-    if (telephone && !regexTel.test(telephone)) {
-        return res.status(400).json({ 
-            success: false, 
-            message: "Le téléphone doit contenir exactement 9 chiffres." 
-        });
-    }
-
     try {
-        db.run(
-            `UPDATE utilisateurs SET nom=?, telephone=?, email=?, dateNaissance=?, formation=? WHERE id=?`,
-            [nom, telephone, email, dateNaissance, formation, id]
+        await pool.query(
+            `UPDATE utilisateurs SET nom=$1, telephone=$2, email=$3, formation=$4 WHERE id=$5`,
+            [nom, telephone, email, formation, id]
         );
-        saveDatabase();
-        console.log(`✏️ Profil mis à jour pour l'étudiant #${id}`);
         res.json({ success: true, message: "Modifications enregistrées !" });
     } catch (error) {
         console.error("Erreur mise à jour :", error);
@@ -165,61 +129,38 @@ app.put('/api/etudiant/:id', (req, res) => {
 });
 
 // ==========================================
-// 4. ESPACE ADMIN (CONNEXION & RAPPORTS)
+// 4. ESPACE ADMIN
 // ==========================================
-
-// Connexion Admin
 app.post('/api/admin/login', (req, res) => {
     const { username, password } = req.body;
-    
     const adminUser = process.env.ADMIN_USER || 'admin';
     const adminPass = process.env.ADMIN_PASS || 'TTES2026!';
 
     if (username === adminUser && password === adminPass) {
-        res.json({ success: true, token: 'session_admin_active_ttes_2026' });
+        res.json({ success: true, token: 'session_admin_active' });
     } else {
         res.status(401).json({ success: false, message: "Identifiants incorrects" });
     }
 });
 
-// Liste de toutes les inscriptions (GET Admin)
-app.get('/api/admin/inscriptions', (req, res) => {
+app.get('/api/admin/inscriptions', async (req, res) => {
     try {
-        if (!db) {
-            return res.status(500).json({ success: false, message: "Base de données non disponible" });
-        }
-
-        const stmt = db.prepare("SELECT * FROM utilisateurs ORDER BY id DESC");
-        const utilisateurs = [];
-
-        while (stmt.step()) {
-            utilisateurs.push(stmt.getAsObject());
-        }
-        stmt.free();
-
-        res.json({
-            success: true,
-            inscriptions: utilisateurs
-        });
+        const result = await pool.query("SELECT * FROM utilisateurs ORDER BY id DESC");
+        res.json({ success: true, inscriptions: result.rows });
     } catch (error) {
-        console.error("Erreur récupération admin :", error);
         res.status(500).json({ success: false, message: "Erreur serveur" });
     }
 });
 
 // Export CSV / Excel
-app.get('/api/admin/export-csv', (req, res) => {
+app.get('/api/admin/export-csv', async (req, res) => {
     try {
-        if (!db) return res.status(500).send("Base de données indisponible");
-
-        const stmt = db.prepare("SELECT * FROM utilisateurs ORDER BY id DESC");
+        const result = await pool.query("SELECT * FROM utilisateurs ORDER BY id DESC");
         let csv = "ID,Nom,Telephone,Email,Date Naissance,Formation,Date Inscription\n";
 
-        while (stmt.step()) {
-            const row = stmt.getAsObject();
-            csv += `"${row.id}","${row.nom}","${row.telephone}","${row.email}","${row.dateNaissance || ''}","${row.formation}","${row.date_inscription}"\n`;
-        }
-        stmt.free();
+        result.rows.forEach(row => {
+            csv += `"${row.id}","${row.nom}","${row.telephone}","${row.email}","${row.date_naissance || ''}","${row.formation}","${row.date_inscription}"\n`;
+        });
 
         res.setHeader('Content-Type', 'text/csv; charset=utf-8');
         res.setHeader('Content-Disposition', 'attachment; filename=inscriptions_ttes_icg.csv');
@@ -230,13 +171,11 @@ app.get('/api/admin/export-csv', (req, res) => {
     }
 });
 
-// ==========================================
-// 5. ROUTE RACINE & DÉMARRAGE DU SERVEUR
-// ==========================================
+// ROUTE RACINE
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Serveur TTES-ICG démarré sur http://localhost:${PORT}`);
+    console.log(`🚀 Serveur démarré sur le port ${PORT}`);
 });
