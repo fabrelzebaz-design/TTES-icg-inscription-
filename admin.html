@@ -48,6 +48,19 @@
             transition: all 0.3s ease;
             background: #F9FAFB url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%239CA3AF" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>') no-repeat 15px center;
         }
+        .btn-primary {
+             background-color: #007bff;
+             color: white;
+             padding: 10px 15px;
+             text-decoration: none;
+             border-radius: 5px;
+             display: inline-block;
+             font-weight: bold;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
         .search-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); background-color: white; }
 
         /* Le Tableau Pro */
@@ -70,6 +83,7 @@
         <h1> TTES-ICG Control Center</h1>
         <div class="actions">
             <button class="btn btn-primary" onclick="chargerInscriptions()">🔄 Actualiser</button>
+            <a href="/index.html" class="btn btn-primary" target="_blank" style="background:#2563EB; color:white; text-decoration:none;">➕ Ajouter un étudiant</a>
             <a href="/api/admin/export-csv" class="btn btn-success">📥 Export Excel</a>
             <button class="btn" style="background:#EF4444; color:white;" onclick="deconnexion()">🚪 Déconnexion</button>
         </div>
