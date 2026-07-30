@@ -111,39 +111,41 @@
 </div>
 
 <script>
-    // Vérification de la session admin
-    if (localStorage.getItem('adminToken') !== 'session_admin_active_ttes_2026') {
+    // 1. Vérification de la session admin
+    // S'il n'y a pas de jeton valide dans le navigateur, on redirige vers le login
+    const token = localStorage.getItem('adminToken');
+    if (token !== 'session_admin_active_ttes_2026') {
         window.location.href = '/login.html';
     }
 
+    // 2. Fonction de déconnexion
     function deconnexion() {
-        localStorage.removeItem('adminToken');
-        window.location.href = '/login.html';
+        localStorage.removeItem('adminToken'); // Efface la clé
+        window.location.href = '/login.html';   // Redirige vers la page de login
     }
-    function deconnexion() {
-        localStorage.removeItem('adminToken'); // Efface la clé de connexion
-        window.location.href = '/login.html';   // Redirige immédiatement vers le login
-    }
+
+    // 3. Charger la liste des étudiants
     async function chargerInscriptions() {
         const tbody = document.getElementById('tableauInscriptions');
+        if (!tbody) return;
+
         try {
             const res = await fetch('/api/admin/inscriptions');
             const data = await res.json();
 
-            if (data.success && data.inscriptions.length > 0) {
+            if (data.success && data.inscriptions && data.inscriptions.length > 0) {
                 tbody.innerHTML = '';
                 data.inscriptions.forEach(user => {
                     const tr = document.createElement('tr');
-                    // On simplifie l'affichage : le téléphone et l'email sont groupés dans "Contact"
                     tr.innerHTML = `
                         <td class="id-text">#${String(user.id).padStart(4, '0')}</td>
-                        <td style="font-weight: 600; color: #111827;">${user.nom}</td>
+                        <td style="font-weight: 600; color: #111827;">${user.nom || 'Sans nom'}</td>
                         <td>
-                            <div>${user.email}</div>
-                            <div style="color: #6B7280; font-size: 12px; margin-top: 4px;">📞 ${user.telephone}</div>
+                            <div>${user.email || 'Pas d\'email'}</div>
+                            <div style="color: #6B7280; font-size: 12px; margin-top: 4px;">📞 ${user.telephone || 'Non renseigné'}</div>
                         </td>
-                        <td><span class="badge">${user.formation}</span></td>
-                        <td style="color: #6B7280;">${new Date(user.date_inscription).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                        <td><span class="badge">${user.formation || 'Non spécifiée'}</span></td>
+                        <td style="color: #6B7280;">${user.date_inscription ? new Date(user.date_inscription).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}</td>
                     `;
                     tbody.appendChild(tr);
                 });
@@ -151,30 +153,25 @@
                 tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #6B7280; padding: 30px;">Aucune inscription pour le moment.</td></tr>';
             }
         } catch (err) {
-            console.error(err);
+            console.error("Erreur de récupération :", err);
             tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #EF4444; padding: 30px;">Erreur de connexion au serveur.</td></tr>';
         }
     }
 
-    // Le moteur de recherche instantané du Senior Dev
+    // 4. Moteur de recherche instantané
     function filtrerTableau() {
         const input = document.getElementById("searchInput");
+        if (!input) return;
         const filter = input.value.toLowerCase();
         const tbody = document.getElementById("tableauInscriptions");
         const trs = tbody.getElementsByTagName("tr");
 
         for (let i = 0; i < trs.length; i++) {
-            // Concatène tout le texte de la ligne pour chercher globalement
             const rowText = trs[i].textContent.toLowerCase();
-            if (rowText.includes(filter)) {
-                trs[i].style.display = ""; // Affiche la ligne
-            } else {
-                trs[i].style.display = "none"; // Masque la ligne
-            }
+            trs[i].style.display = rowText.includes(filter) ? "" : "none";
         }
     }
-    // Charger les données au démarrage
+
+    // 5. Lancement au chargement du DOM
     document.addEventListener('DOMContentLoaded', chargerInscriptions);
 </script>
-</body>
-</html>

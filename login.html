@@ -61,8 +61,8 @@
             const data = await res.json();
 
             if (data.success) {
-                // Sauvegarde de la session admin dans le navigateur
-                localStorage.setItem('adminToken', data.token);
+                // CORRECTION : On enregistre exactement la clé attendue par admin.html
+                localStorage.setItem('adminToken', 'session_admin_active_ttes_2026');
                 window.location.href = '/admin.html';
             } else {
                 errorMsg.textContent = data.message || "Identifiants incorrects !";
@@ -78,6 +78,3 @@
         }
     });
 </script>
-
-</body>
-</html>
