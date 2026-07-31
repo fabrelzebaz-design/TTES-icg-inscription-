@@ -17,32 +17,38 @@
         .btn-edit { background: #F59E0B; color: white; }
         .btn-save { background: #10B981; color: white; display: none; }
         .btn-pdf {
-    background-color: #059669;
-    color: white;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    margin-bottom: 20px;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: background 0.3s;
-}
-.btn-pdf:hover {
-    background-color: #047857;
-}
+            background-color: #059669;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+            width: 100%;
+            justify-content: center;
+        }
+        .btn-pdf:hover { background-color: #047857; }
+
+        /* Cacher les boutons lors de l'impression/génération PDF */
+        .no-print {
+            /* Classe utilitaire pour exclure des éléments */
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
-<div class="card">
+<div class="card" id="pdfContent">
     <h2>🎓 Mon Espace Inscription</h2>
-    <p style="color: #6B7280; font-size: 14px;">Vérifiez ou modifiez vos informations ci-dessous.</p>
-    <div style="margin-bottom: 20px; text-align: right;">
+    <p style="color: #6B7280; font-size: 14px; margin-bottom: 20px;">Vérifiez ou modifiez vos informations ci-dessous.</p>
+    
+    <div class="no-print" style="margin-bottom: 20px;">
         <button id="btn-pdf" type="button" onclick="telechargerPDF()" class="btn-pdf">
             📄 Télécharger ma Fiche d'Inscription (PDF)
         </button>
@@ -54,8 +60,8 @@
             <input type="text" id="nom" disabled required>
         </div>
         <div class="field">
-            <label for="telephone">Téléphone (9 chiffres)</label>
-            <input type="tel" id="telephone" maxlength="9" disabled required>
+            <label for="telephone">Téléphone</label>
+            <input type="tel" id="telephone" disabled required>
         </div>
         <div class="field">
             <label for="email">Email</label>
@@ -64,17 +70,16 @@
         <div class="field">
             <label for="formation">Formation choisie</label>
             <select id="formation" disabled required>
-                <option value="Intelligence artificielle">Intelligence artificielle</option>
-                <option value="Auxiliaire de vie">Auxiliaire de vie</option>
-                <option value="Médecine">Médecine</option>
-                <option value="Couture">Couture</option>
-                <option value="Marketing Digital">Marketing Digital</option>
-                <option value="Multi Level Marketing">Multi Level Marketing</option>
-                <option value="Coiffure professionnelle">Coiffure professionnelle</option>
+                <option value="Administration de Bases de Données">Administration de Bases de Données</option>
+                <option value="Intelligence Artificielle (IA)">Intelligence Artificielle (IA)</option>
+                <option value="Community Management & E-Commerce">Community Management & E-Commerce</option>
+                <option value="Montage Audio-Visuel">Montage Audio-Visuel</option>
+                <option value="Management des Entreprises">Management des Entreprises</option>
+                <option value="Pack Spécial 4 en 1">Pack Spécial 4 en 1</option>
             </select>
         </div>
 
-        <div class="btn-group">
+        <div class="btn-group no-print">
             <button type="button" id="btnEdit" class="btn-edit" onclick="activerModification()">✏️ Modifier mes données</button>
             <button type="submit" id="btnSave" class="btn-save">💾 Enregistrer les changements</button>
         </div>
@@ -114,10 +119,13 @@
         if (document.getElementById('btnSave')) document.getElementById('btnSave').style.display = 'block';
     }
 
-    // 4. Fonction de téléchargement du PDF professionnel
+    // 4. Fonction de téléchargement du PDF propre
     function telechargerPDF() {
-        // Sélectionne le conteneur principal de la carte / fiche
-        const element = document.querySelector('.container') || document.querySelector('.card') || document.body;
+        const element = document.getElementById('pdfContent');
+
+        // Masquer temporairement les éléments .no-print pour un PDF propre
+        const noPrintElements = document.querySelectorAll('.no-print');
+        noPrintElements.forEach(el => el.style.visibility = 'hidden');
 
         const opt = {
             margin:       10,
@@ -128,18 +136,20 @@
         };
 
         if (typeof html2pdf !== 'undefined') {
-            html2pdf().set(opt).from(element).save();
+            html2pdf().set(opt).from(element).save().then(() => {
+                // Réafficher les boutons après la génération
+                noPrintElements.forEach(el => el.style.visibility = 'visible');
+            });
         } else {
-            alert("Erreur : La bibliothèque html2pdf n'est pas chargée. Vérifiez que la balise <script> est présente dans la balise <head>.");
+            noPrintElements.forEach(el => el.style.visibility = 'visible');
+            alert("Erreur : La bibliothèque html2pdf n'est pas chargée.");
         }
     }
 
-    // 5. Initialisation des événements une fois le DOM chargé
+    // 5. Initialisation
     document.addEventListener("DOMContentLoaded", () => {
-        // Charger les données de l'étudiant
         chargerEtudiant();
 
-        // Écouteur sur la soumission du formulaire
         const studentForm = document.getElementById('studentForm');
         if (studentForm) {
             studentForm.addEventListener('submit', async (e) => {
@@ -173,3 +183,6 @@
         }
     });
 </script>
+
+</body>
+</html>

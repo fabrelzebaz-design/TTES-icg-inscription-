@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - TTES-ICG ACADEMY</title>
+    <style>
+        :root { --primary: #0F172A; --accent: #2563EB; --bg: #F8FAFC; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; }
+        body { background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .card { background: white; padding: 35px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); width: 100%; max-width: 480px; border: 1px solid #E2E8F0; }
+        h2 { color: var(--primary); font-size: 24px; text-align: center; margin-bottom: 8px; font-weight: 800; }
+        p.subtitle { text-align: center; color: #64748B; font-size: 14px; margin-bottom: 25px; }
+        .form-group { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; color: #334155; font-size: 14px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 15px; background-color: #F8FAFC; }
+        input:focus, select:focus { outline: none; border-color: var(--accent); background-color: white; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        button { width: 100%; padding: 14px; background: var(--accent); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.2s; margin-top: 10px; }
+        button:hover { background: #1D4ED8; }
+        .msg-success { color: #16A34A; text-align: center; font-weight: 600; margin-top: 15px; display: none; }
+        .msg-error { color: #DC2626; text-align: center; font-weight: 600; margin-top: 15px; display: none; }
+        .back-link { display: block; text-align: center; margin-top: 20px; color: #64748B; text-decoration: none; font-size: 14px; }
+        .back-link:hover { color: var(--accent); }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>⚡ Formulaire d'Inscription</h2>
+    <p class="subtitle">Rejoignez TTES-ICG ACADEMY et lancez votre carrière</p>
+    
+    <form id="inscriptionForm">
+        <div class="form-group">
+            <label>Nom complet</label>
+            <input type="text" id="nom" placeholder="Ex: Jean Dupont" required>
+        </div>
+        <div class="form-group">
+            <label>Adresse E-mail</label>
+            <input type="email" id="email" placeholder="Ex: exemple@mail.com" required>
+        </div>
+        <div class="form-group">
+            <label>Numéro de Téléphone (WhatsApp)</label>
+            <input type="tel" id="telephone" placeholder="Ex: +237 600 000 000" required>
+        </div>
+        <div class="form-group">
+            <label>Formation souhaitée</label>
+            <select id="formation" required>
+                <option value="">-- Sélectionnez une formation --</option>
+                <option value="Administration BDD">Administration de Bases de Données</option>
+                <option value="Intelligence Artificielle">Intelligence Artificielle (IA)</option>
+                <option value="Community Management">Community Management & E-Commerce</option>
+                <option value="Montage Audio-Visuel">Montage Audio-Visuel</option>
+                <option value="Management Entreprises">Management des Entreprises</option>
+                <option value="Pack 4 en 1">Pack Spécial 4 en 1</option>
+            </select>
+        </div>
+        <button type="submit" id="btnSubmit">Valider mon inscription</button>
+        <div id="msgSuccess" class="msg-success">✅ Votre inscription a été enregistrée avec succès !</div>
+        <div id="msgError" class="msg-error">❌ Une erreur est survenue, veuillez réessayer.</div>
+    </form>
+    
+    <a href="index.html" class="back-link">← Retour au catalogue</a>
+</div>
+
+<script>
+    document.getElementById('inscriptionForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const nom = document.getElementById('nom').value;
+        const email = document.getElementById('email').value;
+        const telephone = document.getElementById('telephone').value;
+        const formation = document.getElementById('formation').value;
+        const btnSubmit = document.getElementById('btnSubmit');
+        const msgSuccess = document.getElementById('msgSuccess');
+        const msgError = document.getElementById('msgError');
+
+        btnSubmit.disabled = true;
+        btnSubmit.textContent = "Envoi en cours...";
+        msgSuccess.style.display = 'none';
+        msgError.style.display = 'none';
+
+        try {
+            const res = await fetch('/api/inscriptions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nom, email, telephone, formation })
+            });
+
+            if (res.ok) {
+                msgSuccess.style.display = 'block';
+                document.getElementById('inscriptionForm').reset();
+            } else {
+                msgError.style.display = 'block';
+            }
+        } catch (err) {
+            console.error(err);
+            msgError.style.display = 'block';
+        } finally {
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = "Valider mon inscription";
+        }
+    });
+</script>
+
+</body>
+</html>
