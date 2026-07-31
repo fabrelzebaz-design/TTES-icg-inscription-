@@ -7,7 +7,7 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Connexion à la base de données PostgreSQL (Neon / Render)
+// Connexion à PostgreSQL
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
@@ -18,7 +18,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// Initialisation automatique de la table PostgreSQL
+// Initialisation de la table
 async function initDB() {
     try {
         await pool.query(`
@@ -32,114 +32,82 @@ async function initDB() {
                 date_inscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
-        console.log("🗄️ Base de données PostgreSQL prête et connectée !");
+        console.log("🗄️ Base de données PostgreSQL prête !");
     } catch (err) {
-        console.error("❌ Erreur lors de l'initialisation de PostgreSQL :", err);
+        console.error("❌ Erreur BDD :", err);
     }
 }
-
 initDB();
 
-// ==========================================
-// 1. ROUTE DE TEST DE SANTÉ
-// ==========================================
+// 1. Route de Santé
 app.get('/api/status', (req, res) => {
-    res.json({ message: "Serveur TTES-ICG et PostgreSQL opérationnels !" });
+    res.json({ success: true, message: "Serveur actif !" });
 });
 
-// ==========================================
-// 2. ROUTE D'INSCRIPTION (POST)
-// ==========================================
-app.post('/api/inscription', async (req, res) => {
+// 2. Inscription (Gère /api/inscription ET /api/inscriptions)
+const handleInscription = async (req, res) => {
     const { nom, telephone, email, dateNaissance, formation } = req.body;
 
     if (!nom || !telephone || !email || !formation) {
-        return res.status(400).json({ 
-            success: false, 
-            message: "Veuillez remplir tous les champs obligatoires." 
-        });
-    }
-
-    const regexTel = /^[0-9]{9}$/;
-    if (!regexTel.test(telephone)) {
-        return res.status(400).json({ 
-            success: false, 
-            message: "Le numéro de téléphone doit contenir exactement 9 chiffres." 
-        });
+        return res.status(400).json({ success: false, message: "Veuillez remplir tous les champs obligatoires." });
     }
 
     try {
-        // "RETURNING id" renvoie directement l'ID généré par PostgreSQL
         const result = await pool.query(
             `INSERT INTO utilisateurs (nom, telephone, email, date_naissance, formation) 
              VALUES ($1, $2, $3, $4, $5) RETURNING id`,
-            [nom, telephone, email, dateNaissance, formation]
+            [nom, telephone, email, dateNaissance || null, formation]
         );
 
         const newId = result.rows[0].id;
-        console.log(`💾 Inscription réussie ID #${newId} : ${nom}`);
-
-        return res.status(201).json({
-            success: true,
-            id: newId,
-            message: "Inscription enregistrée avec succès !"
-        });
-
+        return res.status(201).json({ success: true, id: newId, message: "Inscription réussie !" });
     } catch (error) {
-        console.error("Erreur PostgreSQL :", error);
-        return res.status(500).json({
-            success: false,
-            message: "Erreur lors de l'enregistrement en BDD."
-        });
+        console.error("Erreur Inscription :", error);
+        return res.status(500).json({ success: false, message: "Erreur serveur BDD." });
     }
-});
+};
 
-// ==========================================
-// 3. ESPACE ÉTUDIANT (GET & PUT)
-// ==========================================
+app.post('/api/inscription', handleInscription);
+app.post('/api/inscriptions', handleInscription);
+
+// 3. Espace Étudiant
 app.get('/api/etudiant/:id', async (req, res) => {
     try {
         const result = await pool.query("SELECT * FROM utilisateurs WHERE id = $1", [req.params.id]);
-        
         if (result.rows.length > 0) {
-            return res.json({ success: true, etudiant: result.rows[0] });
+            res.json({ success: true, etudiant: result.rows[0] });
         } else {
-            return res.status(404).json({ success: false, message: "Étudiant non trouvé." });
+            res.status(404).json({ success: false, message: "Étudiant non trouvé." });
         }
     } catch (error) {
-        console.error("Erreur serveur :", error);
         res.status(500).json({ success: false, message: "Erreur serveur." });
     }
 });
 
 app.put('/api/etudiant/:id', async (req, res) => {
     const { nom, telephone, email, formation } = req.body;
-    const { id } = req.params;
-
     try {
         await pool.query(
             `UPDATE utilisateurs SET nom=$1, telephone=$2, email=$3, formation=$4 WHERE id=$5`,
-            [nom, telephone, email, formation, id]
+            [nom, telephone, email, formation, req.params.id]
         );
         res.json({ success: true, message: "Modifications enregistrées !" });
     } catch (error) {
-        console.error("Erreur mise à jour :", error);
-        res.status(500).json({ success: false, message: "Erreur lors de la modification." });
+        res.status(500).json({ success: false, message: "Erreur modification." });
     }
 });
 
-// ==========================================
-// 4. ESPACE ADMIN
-// ==========================================
+// 4. Espace Admin
 app.post('/api/admin/login', (req, res) => {
     const { username, password } = req.body;
-    const adminUser = process.env.ADMIN_USER || 'admin';
-    const adminPass = process.env.ADMIN_PASS || 'TTES2026!';
+    const adminUser = process.env.ADMIN_USER || 'fabrel';
+    const adminPass = process.env.ADMIN_PASS || '1234567';
 
     if (username === adminUser && password === adminPass) {
-        res.json({ success: true, token: 'session_admin_active' });
+        // Envoie du token nécessaire pour débloquer l'accès dans admin.html
+        res.json({ success: true, token: 'session_admin_active_ttes_2026' });
     } else {
-        res.status(401).json({ success: false, message: "Identifiants incorrects" });
+        res.status(401).json({ success: false, message: "Identifiants incorrects." });
     }
 });
 
@@ -148,37 +116,29 @@ app.get('/api/admin/inscriptions', async (req, res) => {
         const result = await pool.query("SELECT * FROM utilisateurs ORDER BY id DESC");
         res.json({ success: true, inscriptions: result.rows });
     } catch (error) {
-        res.status(500).json({ success: false, message: "Erreur serveur" });
+        res.status(500).json({ success: false, message: "Erreur serveur." });
     }
 });
 
-// Export CSV / Excel
-// Export CSV / Excel Optimisé pour Excel Français
+// 5. Export CSV
 app.get('/api/admin/export-csv', async (req, res) => {
     try {
         const result = await pool.query("SELECT * FROM utilisateurs ORDER BY id DESC");
-        
-        // En-têtes avec séparateur point-virgule (;)
-        let csv = "ID;Nom complet;Téléphone;Email;Date de naissance;Formation;Date d'inscription\n";
-
-        result.rows.forEach(row => {
-            const dateInscrip = row.date_inscription ? new Date(row.date_inscription).toLocaleDateString('fr-FR') : '';
-            csv += `"${row.id}";"${row.nom}";"${row.telephone}";"${row.email}";"${row.date_naissance || ''}";"${row.formation}";"${dateInscrip}"\n`;
+        let csv = "ID;Nom complet;Téléphone;Email;Formation;Date\n";
+        result.rows.forEach(r => {
+            const dateInscrip = r.date_inscription ? new Date(r.date_inscription).toLocaleDateString('fr-FR') : '';
+            csv += `"${r.id}";"${r.nom}";"${r.telephone}";"${r.email}";"${r.formation}";"${dateInscrip}"\n`;
         });
-
         res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-        res.setHeader('Content-Disposition', 'attachment; filename=Inscriptions_TTES_ICG.csv');
-        
-        // \uFEFF ajoute le BOM UTF-8 indispensable pour qu'Excel gère bien les accents
+        res.setHeader('Content-Disposition', 'attachment; filename=Inscriptions_TTES.csv');
         res.status(200).send('\uFEFF' + csv);
     } catch (error) {
-        console.error("Erreur d'exportation :", error);
-        res.status(500).send("Erreur lors de la génération du CSV");
+        res.status(500).send("Erreur génération CSV");
     }
 });
 
-// ROUTE RACINE
-app.get('/', (req, res) => {
+// Route par défaut
+app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 

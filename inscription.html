@@ -64,41 +64,54 @@
 
 <script>
     document.getElementById('inscriptionForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const nom = document.getElementById('nom').value;
-        const email = document.getElementById('email').value;
-        const telephone = document.getElementById('telephone').value;
-        const formation = document.getElementById('formation').value;
-        const btnSubmit = document.getElementById('btnSubmit');
-        const msgSuccess = document.getElementById('msgSuccess');
-        const msgError = document.getElementById('msgError');
+    e.preventDefault();
+    
+    const nom = document.getElementById('nom').value;
+    const email = document.getElementById('email').value;
+    const telephone = document.getElementById('telephone').value;
+    const formation = document.getElementById('formation').value;
+    const btnSubmit = document.getElementById('btnSubmit');
+    const msgSuccess = document.getElementById('msgSuccess');
+    const msgError = document.getElementById('msgError');
 
-        btnSubmit.disabled = true;
-        btnSubmit.textContent = "Envoi en cours...";
-        msgSuccess.style.display = 'none';
-        msgError.style.display = 'none';
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = "Envoi en cours...";
+    msgSuccess.style.display = 'none';
+    msgError.style.display = 'none';
 
-        try {
-            const res = await fetch('/api/inscriptions', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nom, email, telephone, formation })
-            });
+    try {
+        // Remarque le '/' indispensable devant 'api/inscription'
+        const res = await fetch('/api/inscription', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nom, email, telephone, formation })
+        });
 
-            if (res.ok) {
-                msgSuccess.style.display = 'block';
-                document.getElementById('inscriptionForm').reset();
-            } else {
-                msgError.style.display = 'block';
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+            msgSuccess.textContent = "✅ Inscription réussie ! Redirection en cours...";
+            msgSuccess.style.display = 'block';
+            document.getElementById('inscriptionForm').reset();
+
+            // Redirection vers l'espace étudiant si un ID est renvoyé
+            if (data.id) {
+                setTimeout(() => {
+                    window.location.href = `espace-etudiant.html?id=${data.id}`;
+                }, 1500);
             }
-        } catch (err) {
-            console.error(err);
-            msgError.style.display = 'block';
-        } finally {
-            btnSubmit.disabled = false;
-            btnSubmit.textContent = "Valider mon inscription";
+        } else {
+            throw new Error(data.message || "Erreur lors de l'inscription");
         }
-    });
+    } catch (err) {
+        console.error("Erreur Inscription :", err);
+        msgError.textContent = err.message || "❌ Une erreur est survenue, veuillez réessayer.";
+        msgError.style.display = 'block';
+    } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = "Valider mon inscription";
+    }
+});
 </script>
 
 </body>
