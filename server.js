@@ -5,7 +5,7 @@ const path = require('path');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT =  process.env.PORT || 3000;
 
 // Connexion à PostgreSQL
 const pool = new Pool({
@@ -18,7 +18,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// Initialisation de la table
+// Initialisation de la table BDD
 async function initDB() {
     try {
         await pool.query(`
@@ -39,24 +39,31 @@ async function initDB() {
 }
 initDB();
 
-// 1. Route de Santé
+// 1. Route de Santé (Healthcheck)
 app.get('/api/status', (req, res) => {
-    res.json({ success: true, message: "Serveur actif !" });
+    res.json({ success: true, message: "Serveur TTES-ICG et PostgreSQL opérationnels !" });
 });
 
-// 2. Inscription (Gère /api/inscription ET /api/inscriptions)
+// 2. Traitement des Inscriptions
 const handleInscription = async (req, res) => {
     const { nom, telephone, email, dateNaissance, formation } = req.body;
 
+    // Validation des champs obligatoires
     if (!nom || !telephone || !email || !formation) {
         return res.status(400).json({ success: false, message: "Veuillez remplir tous les champs obligatoires." });
+    }
+
+    // CORRECTION MAJEURE : Nettoyage et assouplissement du téléphone (acceptation des numéros internationaux)
+    const cleanPhone = telephone.toString().replace(/[^0-9]/g, '');
+    if (cleanPhone.length < 8 || cleanPhone.length > 15) {
+        return res.status(400).json({ success: false, message: "Numéro de téléphone invalide (entre 8 et 15 chiffres attendus)." });
     }
 
     try {
         const result = await pool.query(
             `INSERT INTO utilisateurs (nom, telephone, email, date_naissance, formation) 
              VALUES ($1, $2, $3, $4, $5) RETURNING id`,
-            [nom, telephone, email, dateNaissance || null, formation]
+            [nom.trim(), cleanPhone, email.trim(), dateNaissance || null, formation]
         );
 
         const newId = result.rows[0].id;
@@ -67,6 +74,7 @@ const handleInscription = async (req, res) => {
     }
 };
 
+// Routes d'inscriptions (Singulier + Pluriel)
 app.post('/api/inscription', handleInscription);
 app.post('/api/inscriptions', handleInscription);
 
@@ -104,7 +112,6 @@ app.post('/api/admin/login', (req, res) => {
     const adminPass = process.env.ADMIN_PASS || '1234567';
 
     if (username === adminUser && password === adminPass) {
-        // Envoie du token nécessaire pour débloquer l'accès dans admin.html
         res.json({ success: true, token: 'session_admin_active_ttes_2026' });
     } else {
         res.status(401).json({ success: false, message: "Identifiants incorrects." });
@@ -137,9 +144,14 @@ app.get('/api/admin/export-csv', async (req, res) => {
     }
 });
 
-// Route par défaut
-app.get('*', (req, res) => {
+// Servir la page d'accueil par défaut
+app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Gestion propre des routes non trouvées (404) au lieu du Catch-all destructeur
+app.use((req, res) => {
+    res.status(404).json({ success: false, message: "Route introuvable sur le serveur." });
 });
 
 app.listen(PORT, () => {

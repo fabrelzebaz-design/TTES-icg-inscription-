@@ -37,51 +37,62 @@ document.addEventListener("DOMContentLoaded", function () {
     const message = document.getElementById("message");
     const password = document.getElementById("password");
     const confirmPassword = document.getElementById("confirmPassword");
-    const phone = document.getElementById("phone");
+    const phone = document.getElementById("phone") || document.getElementById("telephone");
 
     if (form) {
         form.addEventListener("submit", async function (e) {
             e.preventDefault();
 
-            // Longueur du mot de passe
-            if (password && password.value.length < 6) {
-                message.style.color = "#FF6B6B";
-                message.textContent = "❌ Le mot de passe doit contenir au moins 6 caractères !";
+            // Longueur du mot de passe (si présent)
+            if (password && password.value.length > 0 && password.value.length < 6) {
+                if (message) {
+                    message.style.color = "#FF6B6B";
+                    message.textContent = "❌ Le mot de passe doit contenir au moins 6 caractères !";
+                }
                 return;
             }
 
-            // Mots de passe identiques
+            // Mots de passe identiques (si présents)
             if (password && confirmPassword && password.value !== confirmPassword.value) {
-                message.style.color = "#FF6B6B";
-                message.textContent = "❌ Les mots de passe ne sont pas identiques !";
+                if (message) {
+                    message.style.color = "#FF6B6B";
+                    message.textContent = "❌ Les mots de passe ne sont pas identiques !";
+                }
                 return;
             }
 
-            // Validation du numéro de téléphone
-            const phoneRegex = /^[0-9]{9}$/;
-            if (!phoneRegex.test(phone.value.trim())) {
-                message.style.color = "#FF6B6B";
-                message.textContent = "❌ Le numéro doit comporter exactement 9 chiffres (ex: 699123456) !";
+            // --- NETTOYAGE ET VALIDATION DU TÉLÉPHONE ---
+            const rawPhone = phone ? phone.value : "";
+            const cleanPhone = rawPhone.replace(/[^0-9]/g, ''); // Supprime les '+', espaces, etc.
+
+            if (cleanPhone.length < 8 || cleanPhone.length > 15) {
+                if (message) {
+                    message.style.color = "#FF6B6B";
+                    message.textContent = "❌ Veuillez entrer un numéro de téléphone valide (entre 8 et 15 chiffres).";
+                }
                 return;
             }
 
+            // --- CRÉATION DU OBJET UTILISATEUR SÉCURISÉ ---
             const utilisateur = {
-                nom: document.getElementById("name").value.trim(),
-                telephone: phone.value.trim(),
-                email: document.getElementById("email").value.trim(),
-                dateNaissance: document.getElementById("birthdate") ? document.getElementById("birthdate").value : "",
-                formation: document.getElementById("formation").value
+                nom: (document.getElementById("name") || document.getElementById("nom"))?.value?.trim() || "",
+                telephone: cleanPhone,
+                email: (document.getElementById("email"))?.value?.trim() || "",
+                dateNaissance: (document.getElementById("birthdate") || document.getElementById("date_naissance"))?.value || "",
+                formation: (document.getElementById("formation"))?.value || ""
             };
 
-            message.style.color = "#007bff";
-            message.textContent = "⏳ Traitement de votre inscription par le serveur...";
+            if (message) {
+                message.style.color = "#007bff";
+                message.textContent = "⏳ Traitement de votre inscription par le serveur...";
+            }
 
             try {
-                const response = await fetch("/api/inscription", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(utilisateur)
-                });
+               const response = await fetch("https://ttes-icg-inscription.onrender.com/api/inscription", {
+                 method: "POST",
+                 headers: { "Content-Type": "application/json" },
+                 body: JSON.stringify(utilisateur)
+            });
 
                 const result = await response.json();
 
@@ -92,13 +103,17 @@ document.addEventListener("DOMContentLoaded", function () {
                     const targetId = result.id || 1;
                     window.location.href = `/espace-etudiant.html?id=${targetId}`;
                 } else {
-                    message.style.color = "#FF6B6B";
-                    message.textContent = "❌ Erreur: " + (result.message || "Échec de l'enregistrement.");
+                    if (message) {
+                        message.style.color = "#FF6B6B";
+                        message.textContent = "❌ Erreur: " + (result.message || "Échec de l'enregistrement.");
+                    }
                 }
             } catch (error) {
                 console.error("Erreur serveur :", error);
-                message.style.color = "#FF6B6B";
-                message.textContent = "❌ Impossible de contacter le serveur.";
+                if (message) {
+                    message.style.color = "#FF6B6B";
+                    message.textContent = "❌ Impossible de contacter le serveur.";
+                }
             }
         });
     }

@@ -143,7 +143,7 @@ button:hover {
 .toggle-btn {
     position: absolute;
     right: 12px;
-    top: 38%;
+    top: 50%; /* Modifié pour centrer parfaitement */
     transform: translateY(-50%);
     background: none;
     border: none;
