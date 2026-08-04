@@ -68,10 +68,22 @@
 
         /* Grid des cartes visuelles */
         .grid-formations {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 25px;
-        align-items: stretch; /* Aligne toutes les cartes sur la même hauteur */
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            align-items: stretch;
+        }
+
+        @media (max-width: 992px) {
+            .grid-formations {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 650px) {
+            .grid-formations {
+                grid-template-columns: 1fr;
+            }
         }
 
         .card { 
@@ -267,6 +279,7 @@
                         • 12 Mois Cursus : 650 000 FCFA
                     </div>
                     <a href="inscription.html?formation=Management des Entreprises" class="btn-inscription">⚡ S'inscrire à cette formation</a>
+                </div>
             </div>
 
             <!-- Carte 6 : Pack Spécial 4 en 1 -->
@@ -284,11 +297,11 @@
                         • Durée : 3 Jours intensifs<br>
                         • Tarif Promo Unique : 25 000 FCFA
                     </div>
-                <a href="inscription.html?formation=MLM" class="btn-inscription">⚡ S'inscrire à cette formation</a>
-                </div>
+                    <a href="inscription.html?formation=Pack Spécial 4 en 1" class="btn-inscription">⚡ S'inscrire à cette formation</a>
                 </div>
             </div>
-        </div>
+
+        </div> <!-- FERMETURE DE GRID-FORMATIONS CORRIGÉE -->
     </main>
 
     <footer>
