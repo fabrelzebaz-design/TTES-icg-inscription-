@@ -152,13 +152,27 @@
         /* Footer */
         footer { background: var(--primary); color: white; padding: 40px 20px 20px; text-align: center; margin-top: 80px; }
         .footer-content { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-bottom: 20px; color: #94A3B8; font-size: 0.95rem; }
+
+        .hero { 
+        background: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.9)), url('logoo.jpg') center/cover; 
+        color: white; 
+        text-align: center; 
+        padding: 80px 20px 60px; 
+        }
+        .logo-box img { 
+        height: 55px; /* Légèrement plus grand pour bien voir les détails */
+        width: auto;
+        object-fit: contain;
+        border-radius: 4px; 
+        }
     </style>
+
 </head>
 <body>
 
     <header>
         <div class="logo-box">
-            <img src="logo.jpeg" alt="Logo TTES-ICG">
+            <img src="logoo.jpg" alt="Logo TTES-ICG ACADEMY">
             <div class="logo-title">TTES-ICG <span>ACADEMY</span></div>
         </div>
         <a href="login.html" class="nav-link"><i class="fas fa-user-check"></i> 🔐Espace Admin</a>
@@ -502,6 +516,6 @@
         </div>
         <p style="font-size: 0.85rem; color: #64748B;">&copy; 2026 TTES-ICG ACADEMY. Tous droits réservés.</p>
     </footer>
-
+</script>
 </body>
 </html>
