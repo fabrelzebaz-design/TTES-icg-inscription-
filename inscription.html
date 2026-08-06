@@ -63,6 +63,15 @@
                 <option value="Télécommunication">Télécommunication</option>
                 <option value="Commerce International">Commerce International</option>
             </select>
+            <!-- Champ supplémentaire pour le mode de formation -->
+        <div class="form-group">
+                 <label for="mode_formation">Mode de formation souhaité :</label>
+                <select name="mode_formation" id="mode_formation" required class="form-control">
+                    <option value="" disabled selected>-- Choisissez votre mode --</option>
+                    <option value="Présentiel (Douala / Yaoundé)">🏫 En Présentiel (Campus Douala ou Yaoundé)</option>
+                    <option value="En Ligne">💻 100% En Ligne (À distance)</option>
+                </select>
+        </div>
         </div>
         <button type="submit" id="btnSubmit">Valider mon inscription</button>
         <div id="msgSuccess" class="msg-success">✅ Votre inscription a été enregistrée avec succès !</div>
