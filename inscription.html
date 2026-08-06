@@ -51,10 +51,10 @@
                 <option value="Community Management">Community Management & E-Commerce</option>
                 <option value="Montage Audio-Visuel">Montage Audio-Visuel</option>
                 <option value="Management Entreprises">Management des Entreprises</option>
-                <option value="Pack 4 en 1">Pack Spécial 4 en 1</option>
-                <option value="Secrétarait bureautique">Secrétarait bureautique</option>
+                <option value="Pack Spécial 4 en 1">Pack Spécial 4 en 1</option>
+                <option value="Secrétariat bureautique">Secrétariat bureautique</option>
                 <option value="Comptabilité Informatisée et Gestion">Comptabilité Informatisée et Gestion</option>
-                <option value="Auxiliaire de vie ">Auxiliaire de vie </option>
+                <option value="Auxiliaire de vie">Auxiliaire de vie</option>
                 <option value="Esthétique Cosmétique">Esthétique Cosmétique</option>
                 <option value="Coiffure Professionnelle">Coiffure Professionnelle</option>
                 <option value="Stylisme Modélisme">Stylisme Modélisme</option>
@@ -63,16 +63,18 @@
                 <option value="Télécommunication">Télécommunication</option>
                 <option value="Commerce International">Commerce International</option>
             </select>
-            <!-- Champ supplémentaire pour le mode de formation -->
+        </div>
+
+        <!-- Mode de formation (Prèsentiel ou En Ligne) -->
         <div class="form-group">
-                 <label for="mode_formation">Mode de formation souhaité :</label>
-                <select name="mode_formation" id="mode_formation" required class="form-control">
-                    <option value="" disabled selected>-- Choisissez votre mode --</option>
-                    <option value="Présentiel (Douala / Yaoundé)">🏫 En Présentiel (Campus Douala ou Yaoundé)</option>
-                    <option value="En Ligne">💻 100% En Ligne (À distance)</option>
-                </select>
+            <label for="mode_formation">Mode de formation souhaité :</label>
+            <select id="mode_formation" required>
+                <option value="" disabled selected>-- Choisissez votre mode --</option>
+                <option value="Présentiel (Douala / Yaoundé)">🏫 En Présentiel (Campus Douala ou Yaoundé)</option>
+                <option value="En Ligne">💻 100% En Ligne (À distance)</option>
+            </select>
         </div>
-        </div>
+
         <button type="submit" id="btnSubmit">Valider mon inscription</button>
         <div id="msgSuccess" class="msg-success">✅ Votre inscription a été enregistrée avec succès !</div>
         <div id="msgError" class="msg-error">❌ Une erreur est survenue, veuillez réessayer.</div>
@@ -83,54 +85,63 @@
 
 <script>
     document.getElementById('inscriptionForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const nom = document.getElementById('nom').value;
-    const email = document.getElementById('email').value;
-    const telephone = document.getElementById('telephone').value;
-    const formation = document.getElementById('formation').value;
-    const btnSubmit = document.getElementById('btnSubmit');
-    const msgSuccess = document.getElementById('msgSuccess');
-    const msgError = document.getElementById('msgError');
+        e.preventDefault();
+        
+        // 1. Récupération de toutes les valeurs du formulaire
+        const nom = document.getElementById('nom').value;
+        const email = document.getElementById('email').value;
+        const telephone = document.getElementById('telephone').value;
+        const formation = document.getElementById('formation').value;
+        const mode_formation = document.getElementById('mode_formation').value; // 👈 CORRECTION : Récupération du mode !
 
-    btnSubmit.disabled = true;
-    btnSubmit.textContent = "Envoi en cours...";
-    msgSuccess.style.display = 'none';
-    msgError.style.display = 'none';
+        const btnSubmit = document.getElementById('btnSubmit');
+        const msgSuccess = document.getElementById('msgSuccess');
+        const msgError = document.getElementById('msgError');
 
-    try {
-        // Remarque le '/' indispensable devant 'api/inscription'
-        const res = await fetch('/api/inscription', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nom, email, telephone, formation })
-        });
+        btnSubmit.disabled = true;
+        btnSubmit.textContent = "Envoi en cours...";
+        msgSuccess.style.display = 'none';
+        msgError.style.display = 'none';
 
-        const data = await res.json();
+        try {
+            // 2. Envoi des données complètes vers server.js
+            const res = await fetch('/api/inscription', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    nom, 
+                    email, 
+                    telephone, 
+                    formation, 
+                    mode_formation // 👈 CORRECTION : Transmission de mode_formation au serveur !
+                })
+            });
 
-        if (res.ok && data.success) {
-            msgSuccess.textContent = "✅ Inscription réussie ! Redirection en cours...";
-            msgSuccess.style.display = 'block';
-            document.getElementById('inscriptionForm').reset();
+            const data = await res.json();
 
-            // Redirection vers l'espace étudiant si un ID est renvoyé
-            if (data.id) {
-                setTimeout(() => {
-                    window.location.href = `espace-etudiant.html?id=${data.id}`;
-                }, 1500);
+            if (res.ok && data.success) {
+                msgSuccess.textContent = "✅ Inscription réussie ! Un e-mail de confirmation vous a été envoyé.";
+                msgSuccess.style.display = 'block';
+                document.getElementById('inscriptionForm').reset();
+
+                // Redirection vers l'espace étudiant
+                if (data.id) {
+                    setTimeout(() => {
+                        window.location.href = `espace-etudiant.html?id=${data.id}`;
+                    }, 2000);
+                }
+            } else {
+                throw new Error(data.message || "Erreur lors de l'inscription");
             }
-        } else {
-            throw new Error(data.message || "Erreur lors de l'inscription");
+        } catch (err) {
+            console.error("Erreur Inscription :", err);
+            msgError.textContent = err.message || "❌ Une erreur est survenue, veuillez réessayer.";
+            msgError.style.display = 'block';
+        } finally {
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = "Valider mon inscription";
         }
-    } catch (err) {
-        console.error("Erreur Inscription :", err);
-        msgError.textContent = err.message || "❌ Une erreur est survenue, veuillez réessayer.";
-        msgError.style.display = 'block';
-    } finally {
-        btnSubmit.disabled = false;
-        btnSubmit.textContent = "Valider mon inscription";
-    }
-});
+    });
 </script>
 
 </body>
