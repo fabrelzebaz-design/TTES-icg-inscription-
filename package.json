@@ -1,29 +1,38 @@
 {
-  "name": "inscription",
+  "name": "ttes-icg-inscription",
   "version": "1.0.0",
-  "description": "",
-  "main": "script.js",
+  "description": "Application d'inscription en ligne pour TTES-ICG ACADEMY",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fabrelzebaz-design/TTES-icg-inscription-.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "inscription",
+    "formation",
+    "ttes-icg"
+  ],
+  "author": "Fabrel Zebaz",
   "license": "ISC",
-  "type": "commonjs",
   "bugs": {
     "url": "https://github.com/fabrelzebaz-design/TTES-icg-inscription-/issues"
   },
   "homepage": "https://github.com/fabrelzebaz-design/TTES-icg-inscription-#readme",
   "dependencies": {
     "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "nodemailer": "^9.0.4",
-    "pg": "^8.22.0",
-    "sql.js": "^1.14.1"
+    "dotenv": "^16.6.1",
+    "express": "^4.22.2",
+    "nodemailer": "^6.10.1",
+    "pg": "^8.23.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
   }
 }
