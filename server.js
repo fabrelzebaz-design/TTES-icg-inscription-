@@ -35,12 +35,16 @@ async function queryBDD(text, params = []) {
 
 // Configuration Nodemailer
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,            // Port SSL obligatoire pour éviter les timeouts sur Render
+    secure: true,          // Doit être à true pour le port 465
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
     },
-    tls: { rejectUnauthorized: false }
+    tls: {
+        rejectUnauthorized: false
+    }
 });
 
 app.use(cors());
