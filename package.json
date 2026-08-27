@@ -26,11 +26,13 @@
   },
   "homepage": "https://github.com/fabrelzebaz-design/TTES-icg-inscription-#readme",
   "dependencies": {
+    "@getbrevo/brevo": "^6.0.3",
     "cors": "^2.8.6",
     "dotenv": "^16.6.1",
     "express": "^4.22.2",
     "nodemailer": "^6.10.1",
-    "pg": "^8.23.0"
+    "pg": "^8.23.0",
+    "resend": "^6.24.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
