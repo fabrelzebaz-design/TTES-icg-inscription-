@@ -3,7 +3,6 @@ const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
 const path = require('path');
-const Brevo = require('@getbrevo/brevo');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -33,9 +32,29 @@ async function queryBDD(text, params = []) {
     return await pool.query(text, params);
 }
 
-// Configuration API Brevo (Compatible toutes versions Node/CommonJS)
-const apiInstance = new Brevo.TransactionalEmailsApi();
-apiInstance.authentications['apiKey'].apiKey = process.env.BREVO_API_KEY;
+// Fonction universelle d'envoi d'email via l'API HTTP de Brevo (Garantie sans crash)
+async function envoyerEmailBrevo(toEmail, toName, subject, htmlContent) {
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+            'accept': 'application/json',
+            'api-key': process.env.BREVO_API_KEY,
+            'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+            sender: { name: "TTES-ICG ACADEMY", email: process.env.EMAIL_USER },
+            to: [{ email: toEmail, name: toName }],
+            subject: subject,
+            htmlContent: htmlContent
+        })
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Erreur lors de l'envoi d'email");
+    }
+    return await response.json();
+}
 
 app.use(cors());
 app.use(express.json());
@@ -82,11 +101,7 @@ app.post('/api/demander-code', async (req, res) => {
     });
 
     try {
-        const sendSmtpEmail = new Brevo.SendSmtpEmail();
-        sendSmtpEmail.subject = "Votre code de vérification d'inscription - TTES-ICG ACADEMY";
-        sendSmtpEmail.sender = { "name": "TTES-ICG ACADEMY", "email": process.env.EMAIL_USER };
-        sendSmtpEmail.to = [{ "email": email, "name": nom }];
-        sendSmtpEmail.htmlContent = `
+        const html = `
             <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 500px; border: 1px solid #cbd5e1; border-radius: 8px;">
                 <h2 style="color: #0F172A;">Bonjour ${nom},</h2>
                 <p>Voici votre code de confirmation pour valider votre pré-inscription :</p>
@@ -97,7 +112,7 @@ app.post('/api/demander-code', async (req, res) => {
             </div>
         `;
 
-        await apiInstance.sendTransacEmail(sendSmtpEmail);
+        await envoyerEmailBrevo(email, nom, "Votre code de vérification - TTES-ICG ACADEMY", html);
 
         console.log(`🔑 Code (${code}) envoyé via Brevo à ${email}`);
         res.json({ success: true, message: "Code envoyé sur votre adresse e-mail !" });
@@ -160,20 +175,12 @@ app.post('/api/valider-inscription', async (req, res) => {
 async function envoyerEmailsConfirmation(etudiant) {
     try {
         // 1. Email pour l'étudiant
-        const mailEtudiant = new Brevo.SendSmtpEmail();
-        mailEtudiant.subject = "Inscription Confirmée - TTES-ICG ACADEMY";
-        mailEtudiant.sender = { "name": "TTES-ICG ACADEMY", "email": process.env.EMAIL_USER };
-        mailEtudiant.to = [{ "email": etudiant.email, "name": etudiant.nom }];
-        mailEtudiant.htmlContent = `<h3>Félicitations ${etudiant.nom} !</h3><p>Votre pré-inscription à la formation <strong>${etudiant.formation}</strong> est validée.</p>`;
-        await apiInstance.sendTransacEmail(mailEtudiant);
+        const htmlEtudiant = `<h3>Félicitations ${etudiant.nom} !</h3><p>Votre pré-inscription à la formation <strong>${etudiant.formation}</strong> est validée.</p>`;
+        await envoyerEmailBrevo(etudiant.email, etudiant.nom, "Inscription Confirmée - TTES-ICG ACADEMY", htmlEtudiant);
 
         // 2. Alerte Admin
-        const mailAdmin = new Brevo.SendSmtpEmail();
-        mailAdmin.subject = "🔔 Nouvelle Inscription Confirmée !";
-        mailAdmin.sender = { "name": "Système TTES", "email": process.env.EMAIL_USER };
-        mailAdmin.to = [{ "email": process.env.EMAIL_USER }];
-        mailAdmin.htmlContent = `<p>L'étudiant <strong>${etudiant.nom}</strong> (${etudiant.email}) a validé son inscription pour la formation <strong>${etudiant.formation}</strong>.</p>`;
-        await apiInstance.sendTransacEmail(mailAdmin);
+        const htmlAdmin = `<p>L'étudiant <strong>${etudiant.nom}</strong> (${etudiant.email}) a validé son inscription pour la formation <strong>${etudiant.formation}</strong>.</p>`;
+        await envoyerEmailBrevo(process.env.EMAIL_USER, "Admin", "🔔 Nouvelle Inscription Confirmée !", htmlAdmin);
 
     } catch (err) {
         console.error("Erreur notifications finales Brevo :", err.message || err);
