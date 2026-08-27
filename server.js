@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
 const path = require('path');
-const Brevo = require('@getbrevo/brevo');
+const { TransactionalEmailsApi, SendSmtpEmail } = require('@getbrevo/brevo');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -33,12 +33,9 @@ async function queryBDD(text, params = []) {
     return await pool.query(text, params);
 }
 
-// Configuration API Brevo
-const apiInstance = new Brevo.TransactionalEmailsApi();
-apiInstance.setApiKey(
-    Brevo.TransactionalEmailsApiApiKeys.apiKey,
-    process.env.BREVO_API_KEY
-);
+// Configuration API Brevo corrigée
+const apiInstance = new TransactionalEmailsApi();
+apiInstance.setApiKey(0, process.env.BREVO_API_KEY);
 
 app.use(cors());
 app.use(express.json());
@@ -85,7 +82,7 @@ app.post('/api/demander-code', async (req, res) => {
     });
 
     try {
-        const sendSmtpEmail = new Brevo.SendSmtpEmail();
+        const sendSmtpEmail = new SendSmtpEmail();
         sendSmtpEmail.subject = "Votre code de vérification d'inscription - TTES-ICG ACADEMY";
         sendSmtpEmail.sender = { "name": "TTES-ICG ACADEMY", "email": process.env.EMAIL_USER };
         sendSmtpEmail.to = [{ "email": email, "name": nom }];
@@ -163,7 +160,7 @@ app.post('/api/valider-inscription', async (req, res) => {
 async function envoyerEmailsConfirmation(etudiant) {
     try {
         // 1. Email pour l'étudiant
-        const mailEtudiant = new Brevo.SendSmtpEmail();
+        const mailEtudiant = new SendSmtpEmail();
         mailEtudiant.subject = "Inscription Confirmée - TTES-ICG ACADEMY";
         mailEtudiant.sender = { "name": "TTES-ICG ACADEMY", "email": process.env.EMAIL_USER };
         mailEtudiant.to = [{ "email": etudiant.email, "name": etudiant.nom }];
@@ -171,7 +168,7 @@ async function envoyerEmailsConfirmation(etudiant) {
         await apiInstance.sendTransacEmail(mailEtudiant);
 
         // 2. Alerte Admin
-        const mailAdmin = new Brevo.SendSmtpEmail();
+        const mailAdmin = new SendSmtpEmail();
         mailAdmin.subject = "🔔 Nouvelle Inscription Confirmée !";
         mailAdmin.sender = { "name": "Système TTES", "email": process.env.EMAIL_USER };
         mailAdmin.to = [{ "email": process.env.EMAIL_USER }];
