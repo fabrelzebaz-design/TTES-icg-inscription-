@@ -3,186 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon Espace Étudiant - TTES-ICG</title>
+    <title>Espace Étudiant - TTES-ICG ACADEMY</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #F3F4F6; display: flex; justify-content: center; padding: 40px 20px; }
-        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
-        h2 { color: #1E40AF; margin-top: 0; }
-        .field { margin-bottom: 15px; }
-        label { font-weight: bold; display: block; margin-bottom: 5px; color: #374151; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #D1D5DB; border-radius: 6px; font-size: 15px; }
-        input:disabled, select:disabled { background: #F3F4F6; color: #6B7280; }
-        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-        button { flex: 1; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
-        .btn-edit { background: #F59E0B; color: white; }
-        .btn-save { background: #10B981; color: white; display: none; }
-        .btn-pdf {
-            background-color: #059669;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin-bottom: 20px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: background 0.3s;
-            width: 100%;
-            justify-content: center;
-        }
-        .btn-pdf:hover { background-color: #047857; }
-
-        /* Cacher les boutons lors de l'impression/génération PDF */
-        .no-print {
-            /* Classe utilitaire pour exclure des éléments */
-        }
+        :root { --primary: #0F172A; --accent: #2563EB; --bg: #F8FAFC; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body { background: var(--bg); padding: 40px 20px; display: flex; justify-content: center; }
+        .card { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); width: 100%; max-width: 600px; border: 1px solid #E2E8F0; }
+        .status-badge { text-align: center; color: #16A34A; background: #DCFCE7; padding: 10px; border-radius: 30px; font-weight: 700; margin-bottom: 25px; display: inline-block; width: 100%; }
+        h2 { color: var(--primary); font-size: 22px; margin-bottom: 20px; text-align: center; }
+        .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #F1F5F9; font-size: 15px; }
+        .info-row strong { color: #475569; }
+        .info-row span { color: var(--primary); font-weight: 600; text-align: right; }
+        .actions { margin-top: 30px; display: flex; gap: 15px; }
+        .btn { flex: 1; padding: 12px; text-align: center; border-radius: 8px; text-decoration: none; font-weight: 600; cursor: pointer; border: none; }
+        .btn-print { background: var(--primary); color: white; }
+        .btn-home { background: #E2E8F0; color: #334155; }
+        @media print { .actions, header { display: none !important; } .card { box-shadow: none; border: none; } }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
-<div class="card" id="pdfContent">
-    <h2>🎓 Mon Espace Inscription</h2>
-    <p style="color: #6B7280; font-size: 14px; margin-bottom: 20px;">Vérifiez ou modifiez vos informations ci-dessous.</p>
-    
-    <div class="no-print" style="margin-bottom: 20px;">
-        <button id="btn-pdf" type="button" onclick="telechargerPDF()" class="btn-pdf">
-            📄 Télécharger ma Fiche d'Inscription (PDF)
-        </button>
+<div class="card" id="studentCard">
+    <div class="status-badge"><i class="fas fa-check-circle"></i> Pré-inscription Validée</div>
+    <h2>Récapitulatif de votre Dossier</h2>
+
+    <div id="details">
+        <p style="text-align: center; color: #64748B;">Chargement des données...</p>
     </div>
 
-    <form id="studentForm">
-        <div class="field">
-            <label for="nom">Nom complet</label>
-            <input type="text" id="nom" disabled required>
-        </div>
-        <div class="field">
-            <label for="telephone">Téléphone</label>
-            <input type="tel" id="telephone" disabled required>
-        </div>
-        <div class="field">
-            <label for="email">Email</label>
-            <input type="email" id="email" disabled required>
-        </div>
-        <div class="field">
-            <label for="formation">Formation choisie</label>
-            <select id="formation" disabled required>
-                <option value="Administration de Bases de Données">Administration de Bases de Données</option>
-                <option value="Intelligence Artificielle (IA)">Intelligence Artificielle (IA)</option>
-                <option value="Community Management & E-Commerce">Community Management & E-Commerce</option>
-                <option value="Montage Audio-Visuel">Montage Audio-Visuel</option>
-                <option value="Management des Entreprises">Management des Entreprises</option>
-                <option value="Pack Spécial 4 en 1">Pack Spécial 4 en 1</option>
-            </select>
-        </div>
-
-        <div class="btn-group no-print">
-            <button type="button" id="btnEdit" class="btn-edit" onclick="activerModification()">✏️ Modifier mes données</button>
-            <button type="submit" id="btnSave" class="btn-save">💾 Enregistrer les changements</button>
-        </div>
-    </form>
+    <div class="actions">
+        <button class="btn btn-print" onclick="window.print()"><i class="fas fa-print"></i> Imprimer Reçu</button>
+        <a href="index.html" class="btn btn-home"><i class="fas fa-home"></i> Accueil</a>
+    </div>
 </div>
 
 <script>
-    // 1. Récupération de l'ID depuis l'URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const studentId = urlParams.get('id');
+    document.addEventListener('DOMContentLoaded', async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('id');
+        const detailsContainer = document.getElementById('details');
 
-    // 2. Fonction de chargement des données étudiant
-    async function chargerEtudiant() {
-        if (!studentId) return alert("Aucun étudiant spécifié dans l'URL.");
-        
+        if (!id) {
+            detailsContainer.innerHTML = '<p style="color: red; text-align: center;">Aucun identifiant trouvé.</p>';
+            return;
+        }
+
         try {
-            const res = await fetch(`/api/etudiant/${studentId}`);
+            const res = await fetch(`/api/etudiant/${id}`);
             const data = await res.json();
 
             if (data.success && data.etudiant) {
-                document.getElementById('nom').value = data.etudiant.nom || '';
-                document.getElementById('telephone').value = data.etudiant.telephone || '';
-                document.getElementById('email').value = data.etudiant.email || '';
-                document.getElementById('formation').value = data.etudiant.formation || '';
+                const e = data.etudiant;
+                detailsContainer.innerHTML = `
+                    <div class="info-row"><strong>Matricule / ID :</strong> <span>#TTES-${e.id.toString().padStart(4, '0')}</span></div>
+                    <div class="info-row"><strong>Nom complet :</strong> <span>${e.nom}</span></div>
+                    <div class="info-row"><strong>Email :</strong> <span>${e.email}</span></div>
+                    <div class="info-row"><strong>Téléphone :</strong> <span>${e.telephone}</span></div>
+                    <div class="info-row"><strong>Date de Naissance :</strong> <span>${e.date_naissance || 'Non renseignée'}</span></div>
+                    <div class="info-row"><strong>Formation :</strong> <span>${e.formation}</span></div>
+                    <div class="info-row"><strong>Mode :</strong> <span>${e.mode_formation || 'Présentiel'}</span></div>
+                    <div class="info-row"><strong>Date de demande :</strong> <span>${new Date(e.date_inscription).toLocaleDateString('fr-FR')}</span></div>
+                `;
             } else {
-                alert("Impossible de charger les données de l'étudiant.");
+                detailsContainer.innerHTML = `<p style="color: red; text-align: center;">${data.message || "Étudiant introuvable."}</p>`;
             }
         } catch (err) {
-            console.error("Erreur de chargement :", err);
-        }
-    }
-
-    // 3. Activation de la modification des champs
-    function activerModification() {
-        document.querySelectorAll('#studentForm input, #studentForm select').forEach(el => el.disabled = false);
-        if (document.getElementById('btnEdit')) document.getElementById('btnEdit').style.display = 'none';
-        if (document.getElementById('btnSave')) document.getElementById('btnSave').style.display = 'block';
-    }
-
-    // 4. Fonction de téléchargement du PDF propre
-    function telechargerPDF() {
-        const element = document.getElementById('pdfContent');
-
-        // Masquer temporairement les éléments .no-print pour un PDF propre
-        const noPrintElements = document.querySelectorAll('.no-print');
-        noPrintElements.forEach(el => el.style.visibility = 'hidden');
-
-        const opt = {
-            margin:       10,
-            filename:     `Attestation_Inscription_TTES_${studentId || 'Etudiant'}.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2 },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
-        if (typeof html2pdf !== 'undefined') {
-            html2pdf().set(opt).from(element).save().then(() => {
-                // Réafficher les boutons après la génération
-                noPrintElements.forEach(el => el.style.visibility = 'visible');
-            });
-        } else {
-            noPrintElements.forEach(el => el.style.visibility = 'visible');
-            alert("Erreur : La bibliothèque html2pdf n'est pas chargée.");
-        }
-    }
-
-    // 5. Initialisation
-    document.addEventListener("DOMContentLoaded", () => {
-        chargerEtudiant();
-
-        const studentForm = document.getElementById('studentForm');
-        if (studentForm) {
-            studentForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                
-                const body = {
-                    nom: document.getElementById('nom').value,
-                    telephone: document.getElementById('telephone').value,
-                    email: document.getElementById('email').value,
-                    formation: document.getElementById('formation').value
-                };
-
-                try {
-                    const res = await fetch(`/api/etudiant/${studentId}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(body)
-                    });
-
-                    const result = await res.json();
-                    alert(result.message);
-
-                    if (result.success) {
-                        location.reload();
-                    }
-                } catch (err) {
-                    console.error("Erreur de sauvegarde :", err);
-                    alert("Échec de la mise à jour.");
-                }
-            });
+            detailsContainer.innerHTML = '<p style="color: red; text-align: center;">Erreur de chargement des données.</p>';
         }
     });
 </script>
-
 </body>
 </html>

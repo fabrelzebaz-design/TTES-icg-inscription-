@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion Admin - TTES-ICG</title>
+    <title>Connexion Admin - TTES-ICG ACADEMY</title>
     <style>
-        :root { --primary: #4F46E5; --bg: #F3F4F6; }
-        * { box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
-        body { background: var(--bg); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); width: 100%; max-width: 400px; }
-        h2 { margin-top: 0; color: #1F2937; font-size: 22px; text-align: center; }
+        :root { --primary: #0F172A; --accent: #2563EB; --bg: #F8FAFC; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; }
+        body { background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .card { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); width: 100%; max-width: 400px; border: 1px solid #E2E8F0; }
+        h2 { margin-bottom: 24px; color: var(--primary); font-size: 22px; text-align: center; font-weight: 700; }
         .form-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; font-weight: 600; color: #4B5563; font-size: 14px; }
-        input { width: 100%; padding: 12px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 15px; }
-        input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
-        button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-        button:hover { background: #4338CA; }
+        input { width: 100%; padding: 12px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 15px; transition: border-color 0.2s; }
+        input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        button { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        button:hover { background: #1D4ED8; }
         button:disabled { background: #9CA3AF; cursor: not-allowed; }
-        .error { color: #EF4444; font-size: 14px; text-align: center; margin-top: 15px; display: none; }
+        .error { color: #EF4444; font-size: 14px; text-align: center; margin-top: 15px; display: none; background: #FEF2F2; padding: 10px; border-radius: 6px; border: 1px solid #FCA5A5; }
     </style>
 </head>
 <body>
@@ -26,27 +26,26 @@
     <h2>🔐 Connexion Admin</h2>
     <form id="loginForm">
         <div class="form-group">
-            <label>Identifiant</label>
-            <input type="text" id="username" required autocomplete="off">
+            <label for="username">Identifiant</label>
+            <input type="text" id="username" required autocomplete="username">
         </div>
         <div class="form-group">
-            <label>Mot de passe</label>
-            <input type="password" id="password" required>
+            <label for="password">Mot de passe</label>
+            <input type="password" id="password" required autocomplete="current-password">
         </div>
         <button type="submit" id="submitBtn">Se connecter</button>
-        <div id="errorMsg" class="error">Identifiants incorrects !</div>
+        <div id="errorMsg" class="error"></div>
     </form>
 </div>
 
 <script>
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
         const errorMsg = document.getElementById('errorMsg');
         const submitBtn = document.getElementById('submitBtn');
 
-        // Réinitialisation de l'affichage
         errorMsg.style.display = 'none';
         submitBtn.disabled = true;
         submitBtn.textContent = "Connexion en cours...";
@@ -61,8 +60,7 @@
             const data = await res.json();
 
             if (data.success) {
-                // CORRECTION : On enregistre exactement la clé attendue par admin.html
-                localStorage.setItem('adminToken', 'session_admin_active_ttes_2026');
+                localStorage.setItem('adminToken', data.token || 'session_admin_active_ttes_2026');
                 window.location.href = '/admin.html';
             } else {
                 errorMsg.textContent = data.message || "Identifiants incorrects !";
@@ -70,7 +68,7 @@
             }
         } catch (err) {
             console.error(err);
-            errorMsg.textContent = "Le serveur se réveille, réessayez dans 20 secondes...";
+            errorMsg.textContent = "Impossible de joindre le serveur. Veuillez réessayer.";
             errorMsg.style.display = 'block';
         } finally {
             submitBtn.disabled = false;
@@ -78,3 +76,5 @@
         }
     });
 </script>
+</body>
+</html>

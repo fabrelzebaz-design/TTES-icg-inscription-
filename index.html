@@ -3,505 +3,787 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TTES-ICG ACADEMY | Nos Formations Professionnelles</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>TTES-ICG ACADEMY | Catalogue d'Élite</title>
+    
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
     <style>
+        /* Variables par défaut (Mode Sombre) */
         :root {
             --primary: #0F172A;
+            --primary-light: #1E293B;
             --accent: #2563EB;
-            --accent-hover: #1D4ED8;
-            --bg-light: #F8FAFC;
-            --text-dark: #1E293B;
-            --text-muted: #64748B;
+            --accent-glow: rgba(37, 99, 235, 0.35);
+            --gradient-accent: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+            --gradient-gold: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            --bg-body: #0F172A;
+            --header-bg: rgba(15, 23, 42, 0.85);
+            --card-bg: #1E293B;
+            --card-tarifs-bg: rgba(15, 23, 42, 0.6);
+            --search-bg: rgba(30, 41, 59, 0.7);
+            --text-main: #F8FAFC;
+            --text-title: #FFFFFF;
+            --text-muted: #94A3B8;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --radius-lg: 20px;
+            --radius-sm: 12px;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
-        body { background-color: var(--bg-light); color: var(--text-dark); line-height: 1.6; }
+        /* Redéfinition des variables pour le Mode Clair */
+        body.light-mode {
+            --bg-body: #F8FAFC;
+            --header-bg: rgba(255, 255, 255, 0.85);
+            --card-bg: #FFFFFF;
+            --card-tarifs-bg: #F1F5F9;
+            --search-bg: #FFFFFF;
+            --text-main: #0F172A;
+            --text-title: #0F172A;
+            --text-muted: #475569;
+            --border-color: #E2E8F0;
+        }
 
-        /* Navigation Header */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-body); 
+            color: var(--text-main); 
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Backgrounds ambiants */
+        .ambient-glow-1 {
+            position: fixed;
+            top: -10%;
+            left: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .ambient-glow-2 {
+            position: fixed;
+            bottom: -10%;
+            right: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.12) 0%, rgba(0, 0, 0, 0) 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Header */
         header { 
-            background: var(--primary); 
-            color: white; 
-            padding: 15px 8%; 
+            background: var(--header-bg); 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 18px 8%; 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
             position: sticky; 
             top: 0; 
             z-index: 1000; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.3s ease;
         }
-        .logo-box { display: flex; align-items: center; gap: 12px; }
-        .logo-box img { height: 45px; border-radius: 6px; }
-        .logo-title { font-size: 1.3rem; font-weight: 800; color: #FFF; text-transform: uppercase; }
-        .logo-title span { color: #38BDF8; }
+
+        .logo-box { display: flex; align-items: center; gap: 14px; }
+        .logo-box img { height: 48px; border-radius: 8px; box-shadow: 0 0 15px rgba(56, 189, 248, 0.2); }
+        .logo-title { font-size: 1.3rem; font-weight: 800; color: var(--text-title); letter-spacing: -0.02em; }
+        .logo-title span { color: #2563EB; }
 
         .nav-link { 
-            background: var(--accent); 
-            color: white; 
-            padding: 10px 20px; 
-            border-radius: 8px; 
+            background: rgba(37, 99, 235, 0.1); 
+            color: var(--text-title); 
+            padding: 10px 22px; 
+            border-radius: 30px; 
             text-decoration: none; 
             font-weight: 600; 
-            transition: 0.3s; 
+            font-size: 0.9rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .nav-link:hover { background: var(--accent-hover); }
+        .nav-link:hover { 
+            background: var(--accent); 
+            color: #FFFFFF;
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+
+        /* Bouton Theme Toggle */
+        .theme-toggle-btn {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--text-title);
+            border: 1px solid var(--border-color);
+            padding: 10px 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        .theme-toggle-btn:hover {
+            background: var(--accent);
+            color: #FFFFFF;
+        }
 
         /* Hero Banner */
         .hero { 
-            background: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.9)), url('logo.jpeg') center/cover; 
-            color: white; 
-            text-align: center; 
-            padding: 80px 20px 60px; 
+            position: relative;
+            z-index: 1;
+            padding: 90px 20px 60px; 
+            text-align: center;
         }
-        .hero h1 { font-size: 2.8rem; margin-bottom: 15px; font-weight: 800; }
-        .hero h1 span { color: #38BDF8; }
-        .hero p { font-size: 1.2rem; max-width: 750px; margin: 0 auto 30px; color: #E2E8F0; }
-        .hero-badges { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
-        .badge { background: rgba(255,255,255,0.15); padding: 8px 18px; border-radius: 20px; font-size: 0.95rem; border: 1px solid rgba(255,255,255,0.2); }
 
-        /* Section Catalogue */
-        .container { max-width: 1250px; margin: 50px auto; padding: 0 20px; }
-        .section-header { text-align: center; margin-bottom: 45px; }
-        .section-header h2 { font-size: 2.2rem; color: var(--primary); font-weight: 800; }
-        .section-header p { color: var(--text-muted); font-size: 1.1rem; }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(56, 189, 248, 0.1);
+            color: #2563EB;
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            animation: pulseGlow 2s infinite alternate;
+        }
 
-        /* Grid des cartes visuelles */
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 10px rgba(56, 189, 248, 0.2); }
+            100% { box-shadow: 0 0 25px rgba(56, 189, 248, 0.5); }
+        }
+
+        .hero h1 { 
+            font-size: 3.2rem; 
+            font-weight: 800; 
+            letter-spacing: -0.03em; 
+            max-width: 900px;
+            margin: 0 auto 20px;
+            line-height: 1.15;
+            color: var(--text-title);
+        }
+        .hero h1 span { 
+            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p { 
+            font-size: 1.15rem; 
+            max-width: 720px; 
+            margin: 0 auto 40px; 
+            color: var(--text-muted); 
+        }
+
+        /* Recherche */
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto 60px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 18px 25px 18px 55px;
+            border-radius: 50px;
+            border: 1px solid var(--border-color);
+            background: var(--search-bg);
+            backdrop-filter: blur(10px);
+            color: var(--text-main);
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-box input::placeholder { color: var(--text-muted); }
+
+        .search-box input:focus {
+            border-color: #2563EB;
+            box-shadow: 0 0 25px rgba(37, 99, 235, 0.3);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 22px;
+            color: #2563EB;
+            font-size: 1.2rem;
+        }
+
+        /* Container & Cards */
+        .container { 
+            max-width: 1300px; 
+            margin: 0 auto 80px; 
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
         .grid-formations {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 25px;
-            align-items: stretch;
-        }
-
-        @media (max-width: 992px) {
-            .grid-formations {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 650px) {
-            .grid-formations {
-                grid-template-columns: 1fr;
-            }
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 32px;
         }
 
         .card { 
-            background: white; 
-            border-radius: 16px; 
+            background: var(--card-bg); 
+            border-radius: var(--radius-lg); 
             overflow: hidden; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.06); 
-            transition: transform 0.3s, box-shadow 0.3s; 
+            border: 1px solid var(--border-color);
             display: flex; 
             flex-direction: column; 
-            border: 1px solid #E2E8F0; 
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.6s forwards ease-out;
         }
-        .card:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0,0,0,0.12); }
 
-        /* Conteneur Image de la formation */
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card:hover { 
+            transform: translateY(-10px) scale(1.02); 
+            border-color: rgba(37, 99, 235, 0.4);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.15), 0 0 30px rgba(37, 99, 235, 0.15);
+        }
+
         .card-img-wrapper { 
             position: relative; 
-            height: 220px; 
+            height: 210px; 
             overflow: hidden; 
-            background: #1E293B; 
         }
+
         .card-img-wrapper img { 
             width: 100%; 
             height: 100%; 
             object-fit: cover; 
-            transition: transform 0.5s; 
+            transition: transform 0.6s ease; 
         }
-        .card:hover .card-img-wrapper img { transform: scale(1.05); }
+
+        .card:hover .card-img-wrapper img { transform: scale(1.1); }
 
         .type-tag { 
             position: absolute; 
             top: 15px; 
             right: 15px; 
-            background: #16A34A; 
-            color: white; 
-            padding: 5px 12px; 
-            border-radius: 20px; 
-            font-size: 0.8rem; 
+            background: rgba(15, 23, 42, 0.75); 
+            backdrop-filter: blur(8px);
+            color: #38BDF8; 
+            padding: 6px 14px; 
+            border-radius: 30px; 
+            font-size: 0.75rem; 
             font-weight: 700; 
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2); 
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            letter-spacing: 0.05em;
         }
 
-        /* Contenu de la carte */
-        .card-body { padding: 25px; flex-grow: 1; display: flex; flex-direction: column; }
-        .card-title { font-size: 1.3rem; font-weight: 700; color: var(--primary); margin-bottom: 10px; }
-        .card-slogan { font-style: italic; color: var(--accent); font-weight: 600; font-size: 0.95rem; margin-bottom: 15px; }
-        .card-description { font-size: 0.92rem; color: var(--text-muted); margin-bottom: 20px; flex-grow: 1; }
+        .type-tag.gold {
+            background: var(--gradient-gold);
+            color: #000;
+            border: none;
+            font-weight: 800;
+        }
 
-        .card-tarifs { background: #F1F5F9; padding: 12px 15px; border-radius: 10px; margin-bottom: 20px; font-size: 0.85rem; }
-        .card-tarifs strong { color: var(--primary); display: block; margin-bottom: 4px; font-size: 0.95rem; }
+        .card-body { 
+            padding: 28px; 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+        }
 
-        .btn-inscription { 
+        .card-title { 
+            font-size: 1.3rem; 
+            font-weight: 700; 
+            color: var(--text-title); 
+            margin-bottom: 8px; 
+            line-height: 1.3;
+        }
+
+        .card-slogan { 
+            font-style: italic; 
+            color: #2563EB; 
+            font-weight: 500; 
+            font-size: 0.88rem; 
+            margin-bottom: 14px; 
+            line-height: 1.4;
+        }
+
+        .card-description { 
+            font-size: 0.92rem; 
+            color: var(--text-muted); 
+            margin-bottom: 22px; 
+            flex-grow: 1; 
+        }
+
+        /* Tarifs */
+        .card-tarifs { 
+            background: var(--card-tarifs-bg); 
+            padding: 16px; 
+            border-radius: var(--radius-sm); 
+            margin-bottom: 22px; 
+            font-size: 0.85rem; 
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+
+        .card-tarifs strong { 
+            color: var(--text-title); 
             display: block; 
+            margin-bottom: 6px; 
+            font-size: 0.9rem; 
+            letter-spacing: 0.02em;
+        }
+
+        /* Bouton Action */
+        .btn-inscription { 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
             width: 100%; 
-            background: var(--accent); 
+            background: var(--gradient-accent); 
             color: white; 
-            text-align: center; 
-            padding: 12px; 
-            border-radius: 8px; 
+            padding: 14px; 
+            border-radius: var(--radius-sm); 
             text-decoration: none; 
             font-weight: 700; 
-            transition: 0.3s; 
+            font-size: 0.95rem;
+            transition: all 0.3s ease; 
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px var(--accent-glow);
         }
-        .btn-inscription:hover { background: var(--accent-hover); }
+
+        .btn-inscription:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5);
+        }
+
+        .btn-inscription i { transition: transform 0.3s ease; }
+        .btn-inscription:hover i { transform: translateX(5px); }
+
+        /* Message Pas de résultat */
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            grid-column: 1 / -1;
+            display: none;
+        }
+        .no-results i { font-size: 3rem; color: var(--text-muted); margin-bottom: 15px; }
+        .no-results h3 { font-size: 1.5rem; color: var(--text-title); margin-bottom: 8px; }
 
         /* Footer */
-        footer { background: var(--primary); color: white; padding: 40px 20px 20px; text-align: center; margin-top: 80px; }
-        .footer-content { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-bottom: 20px; color: #94A3B8; font-size: 0.95rem; }
-
-        .hero { 
-        background: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.9)), url('logoo.jpg') center/cover; 
-        color: white; 
-        text-align: center; 
-        padding: 80px 20px 60px; 
+        footer { 
+            background: var(--header-bg); 
+            border-top: 1px solid var(--border-color);
+            padding: 60px 20px 30px; 
+            text-align: center; 
+            position: relative;
+            z-index: 1;
+            transition: background 0.3s ease;
         }
-        .logo-box img { 
-        height: 55px; /* Légèrement plus grand pour bien voir les détails */
-        width: auto;
-        object-fit: contain;
-        border-radius: 4px; 
+
+        .footer-content { 
+            display: flex; 
+            justify-content: center; 
+            gap: 40px; 
+            flex-wrap: wrap; 
+            margin-bottom: 30px; 
+            color: var(--text-muted); 
+            font-size: 0.95rem; 
+        }
+
+        .footer-content span { display: flex; align-items: center; gap: 8px; }
+        .footer-content i { color: #2563EB; font-size: 1.1rem; }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.2rem; }
+            .grid-formations { grid-template-columns: 1fr; }
+            .footer-content { flex-direction: column; gap: 15px; }
         }
     </style>
 </head>
 <body>
+
+    <div class="ambient-glow-1"></div>
+    <div class="ambient-glow-2"></div>
 
     <header>
         <div class="logo-box">
             <img src="logoo.jpg" alt="Logo TTES-ICG ACADEMY">
             <div class="logo-title">TTES-ICG <span>ACADEMY</span></div>
         </div>
-        <a href="login.html" class="nav-link"><i class="fas fa-user-check"></i> 🔐Espace Admin</a>
+
+        <!-- BOUTON DE THÈME -->
+    <button id="theme-toggle" class="theme-toggle-btn" type="button">
+        <span id="theme-icon">🌙</span>
+        <span id="theme-text">Mode Sombre</span>
+    </button>
+
+        <a href="login.html" class="nav-link"><i class="fas fa-user-shield"></i> Administration</a>
     </header>
 
     <section class="hero">
-        <h1>Développez vos compétences <span>sur-mesure</span></h1>
-        <p>Formations professionnelles certifiantes dispensées en <strong>Présentiel</strong> à Douala & Yaoundé ou 100% <strong>En Ligne</strong>.</p>
-        <div class="hero-badges">
-            <span class="badge"><i class="fas fa-laptop-house"></i> En Ligne ou Présentiel</span>
-            <span class="badge"><i class="fas fa-certificate"></i> Certifications Officielles</span>
-            <span class="badge"><i class="fas fa-briefcase"></i> Stages & Insertion Pro</span>
+        <div class="hero-badge">
+            <i class="fas fa-sparkles"></i> Formations Certifiantes 2026
+        </div>
+        <h1>Propulsez votre carrière avec nos <span>Formations d'Élite</span></h1>
+        <p>Apprenez auprès d'experts du domaine. Disponible en Présentiel (Douala & Yaoundé) ou 100% en Ligne.</p>
+
+        <!-- Barre de recherche Ultra-Fluide -->
+        <div class="search-container">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Rechercher une formation (ex: IA, Web, Management, Design...)...">
+            </div>
         </div>
     </section>
 
     <main class="container">
-        <div class="section-header">
-            <h2>Catalogue de nos Formations</h2>
-            <p>Choisissez la formation qui propulsera votre carrière ou votre entreprise</p>
-        </div>
+        <div class="grid-formations" id="formationsGrid">
 
-        <div class="grid-formations">
-
-            <!-- Carte 1 : Base de Données -->
-            <div class="card">
+            <!-- Carte 1 -->
+            <div class="card" style="animation-delay: 0.05s;">
                 <div class="card-img-wrapper">
-                    <img src="./bdd.jpg" alt="Administration de Bases de Données">
+                    <img src="./bdd.jpg" alt="Bases de Données">
                     <span class="type-tag">Présentiel & Ligne</span>
                 </div>
                 <div class="card-body">
                     <h3 class="card-title">Administration de Bases de Données</h3>
-                    <p class="card-slogan">« Devenez l'expert indispensable qui protège, organise et valorise les données des entreprises ! »</p>
+                    <p class="card-slogan">« Devenez l'expert indispensable qui protège et valorise les données. »</p>
                     <p class="card-description">Maîtrisez la gestion, la sécurisation et l'optimisation des BDD modernes (MySQL, PostgreSQL, SQL Server).</p>
                     <div class="card-tarifs">
-                        <strong>Formules & Tarifs :</strong>
-                        • 1 Jour : 10 000 FCFA<br>
+                        <strong>Tarifs & Durée :</strong>
+                        • 1 Jour Découverte : 10 000 FCFA<br>
                         • 8 Mois Pro : 375 000 F / 500 000 F<br>
                         • 12 Mois Complexe : 650 000 FCFA
                     </div>
-                    <a href="inscription.html?formation=Administration de Bases de Données" class="btn-inscription"> S'inscrire à cette formation</a>
+                    <a href="inscription.html?formation=Administration de Bases de Données" class="btn-inscription">S'inscrire maintenant <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
 
-            <!-- Carte 2 : IA -->
-            <div class="card">
+            <!-- Carte 2 -->
+            <div class="card" style="animation-delay: 0.1s;">
                 <div class="card-img-wrapper">
                     <img src="./AI.jpg" alt="Intelligence Artificielle">
                     <span class="type-tag">Présentiel & Ligne</span>
                 </div>
                 <div class="card-body">
                     <h3 class="card-title">Intelligence Artificielle (IA)</h3>
-                    <p class="card-slogan">« Ne subissez pas le futur, dominez-le ! Automatisez vos tâches et gagnez un temps précieux. »</p>
+                    <p class="card-slogan">« Ne subissez pas le futur, dominez-le ! Automatisez vos tâches. »</p>
                     <p class="card-description">Apprenez à maîtriser le Prompting et les outils d'IA pour automatiser la création de contenus et booster votre business.</p>
                     <div class="card-tarifs">
-                        <strong>Formules & Tarifs :</strong>
+                        <strong>Tarifs & Durée :</strong>
                         • 1 Jour Découverte : 10 000 FCFA<br>
                         • Standard (8M) : 375 000 FCFA<br>
                         • Premium (12M) : 650 000 FCFA
                     </div>
-                    <a href="inscription.html?formation=Intelligence Artificielle" class="btn-inscription"> S'inscrire à cette formation</a>
+                    <a href="inscription.html?formation=Intelligence Artificielle" class="btn-inscription">S'inscrire maintenant <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
 
-            <!-- Carte 3 : Community Management -->
-            <div class="card">
+            <!-- Carte 3 -->
+            <div class="card" style="animation-delay: 0.15s;">
                 <div class="card-img-wrapper">
-                    <img src="./community.jpg" alt="Community Management & E-Commerce">
+                    <img src="./community.jpg" alt="Community Management">
                     <span class="type-tag">Présentiel & Ligne</span>
                 </div>
                 <div class="card-body">
                     <h3 class="card-title">Community Management & E-Commerce</h3>
-                    <p class="card-slogan">« Transformez vos réseaux sociaux en véritable machine à vendre et créez un business rentable ! »</p>
+                    <p class="card-slogan">« Transformez vos réseaux sociaux en véritable machine à vendre. »</p>
                     <p class="card-description">Publicité Facebook/TikTok Ads, création de boutiques en ligne, modération et stratégie marketing globale.</p>
                     <div class="card-tarifs">
-                        <strong>Formules & Tarifs :</strong>
+                        <strong>Tarifs & Durée :</strong>
                         • 1 Jour Découverte : 10 000 FCFA<br>
-                        • 8 Mois : 375 000 F / 500 000 F<br>
+                        • 8 Mois Pro : 375 000 F / 500 000 F<br>
                         • 12 Mois Cursus : 650 000 FCFA
                     </div>
-                    <a href="inscription.html?formation=Community Management & E-commerce" class="btn-inscription"> S'inscrire à cette formation</a>
+                    <a href="inscription.html?formation=Community Management & E-Commerce" class="btn-inscription">S'inscrire maintenant <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
 
-            <!-- Carte 4 : Montage Audio-Visuel -->
-            <div class="card">
+            <!-- Carte 4 -->
+            <div class="card" style="animation-delay: 0.2s;">
                 <div class="card-img-wrapper">
                     <img src="./montage.jpg" alt="Montage Audio-Visuel">
                     <span class="type-tag">Présentiel & Ligne</span>
                 </div>
                 <div class="card-body">
                     <h3 class="card-title">Montage Audio-Visuel</h3>
-                    <p class="card-slogan">« La formation qui finance votre scolarité : créez des vidéos professionnelles et vivez de votre passion ! »</p>
+                    <p class="card-slogan">« Créez des vidéos professionnelles et vivez de votre passion ! »</p>
                     <p class="card-description">Montage vidéo pro, production médias sociaux, travail et pratique directement en studio professionnel.</p>
                     <div class="card-tarifs">
-                        <strong>Formules & Tarifs :</strong>
+                        <strong>Tarifs & Durée :</strong>
                         • 1 Jour Initiation : 10 000 FCFA<br>
                         • 8 Mois Pro : 375 000 F / 500 000 F<br>
                         • 12 Mois Complet : 650 000 FCFA
                     </div>
-                    <a href="inscription.html?formation=Montage Audio-Visuel" class="btn-inscription"> S'inscrire à cette formation</a>
+                    <a href="inscription.html?formation=Montage Audio-Visuel" class="btn-inscription">S'inscrire maintenant <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
 
-            <!-- Carte 5 : Management des Entreprises -->
-            <div class="card">
+            <!-- Carte 5 -->
+            <div class="card" style="animation-delay: 0.25s;">
                 <div class="card-img-wrapper">
-                    <img src="./management.jpg" alt="Management des Entreprises">
+                    <img src="./management.jpg" alt="Management">
                     <span class="type-tag">Présentiel & Ligne</span>
                 </div>
                 <div class="card-body">
                     <h3 class="card-title">Management des Entreprises</h3>
-                    <p class="card-slogan">« Développez votre leadership, pilotez des projets complexes et devenez le manager d'élite de demain. »</p>
+                    <p class="card-slogan">« Développez votre leadership et pilotez des projets complexes. »</p>
                     <p class="card-description">Gestion RH, leadership d'équipe, planification stratégique et gestion administrative de base.</p>
                     <div class="card-tarifs">
-                        <strong>Formules & Tarifs :</strong>
+                        <strong>Tarifs & Durée :</strong>
                         • 1 Jour Découverte : 10 000 FCFA<br>
                         • 8 Mois Pro : 375 000 F / 500 000 F<br>
                         • 12 Mois Cursus : 650 000 FCFA
                     </div>
-                    <a href="inscription.html?formation=Management des Entreprises" class="btn-inscription"> S'inscrire à cette formation</a>
+                    <a href="inscription.html?formation=Management des Entreprises" class="btn-inscription">S'inscrire maintenant <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
 
-            <!-- Carte 6 : Pack Spécial 4 en 1 -->
-            <div class="card">
+            <!-- Carte 6 -->
+            <div class="card" style="animation-delay: 0.3s;">
                 <div class="card-img-wrapper">
                     <img src="./mlm.jpg" alt="Pack Spécial 4 en 1">
-                    <span class="type-tag" style="background: #EAB308; color: #000;">Offre Spéciale</span>
+                    <span class="type-tag gold">Offre Spéciale</span>
                 </div>
                 <div class="card-body">
-                    <h3 class="card-title">Pack Spécial 4 en 1 (MLM & Distribution)</h3>
-                    <p class="card-slogan">« 4 compétences clés en un temps record : MLM, Marketing, Automatisation & IA en 3 jours chrono ! »</p>
+                    <h3 class="card-title">Pack Spécial 4 en 1 (MLM & Vente)</h3>
+                    <p class="card-slogan">« MLM, Marketing, Automatisation & IA en 3 jours chrono ! »</p>
                     <p class="card-description">Une formation intensive 3 jours pour décupler vos revenus et maîtriser les outils modernes de vente.</p>
                     <div class="card-tarifs">
-                        <strong>Formules & Tarifs :</strong>
+                        <strong>Tarifs & Durée :</strong>
                         • Durée : 3 Jours intensifs<br>
                         • Tarif Promo Unique : 25 000 FCFA
                     </div>
-                    <a href="inscription.html?formation=Pack Spécial 4 en 1" class="btn-inscription"> S'inscrire à cette formation</a>
+                    <a href="inscription.html?formation=Pack Spécial 4 en 1" class="btn-inscription">S'inscrire maintenant <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
 
-            <!-- Carte 7 : Développement Web -->
-            <div class="card">
+            <!-- Carte 7 -->
+            <div class="card" style="animation-delay: 0.35s;">
                 <div class="card-img-wrapper">
                     <img src="./devweb.jpg" alt="Développement Web">
                     <span class="type-tag">Présentiel & Ligne</span>
                 </div>
                 <div class="card-body">
                     <h3 class="card-title">Développement Web</h3>
-                    <p class="card-slogan">« Créez des sites web et applications sur-mesure et devenez un développeur très recherché. »</p>
+                    <p class="card-slogan">« Créez des applications web sur-mesure et modernes. »</p>
                     <p class="card-description">Maîtrisez HTML, CSS, JavaScript, Node.js et la création d'applications web modernes.</p>
                     <div class="card-tarifs">
-                        <strong>Formules & Tarifs :</strong>
+                        <strong>Tarifs & Durée :</strong>
                         • 1 Jour Initiation : 10 000 FCFA<br>
                         • 8 Mois Pro : 375 000 F / 500 000 F<br>
                         • 12 Mois Cursus : 650 000 FCFA
                     </div>
-                    <a href="inscription.html?formation=Développement Web" class="btn-inscription"> S'inscrire à cette formation</a>
+                    <a href="inscription.html?formation=Développement Web" class="btn-inscription">S'inscrire maintenant <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
 
-            <!-- Carte 8 : Secrétariat Bureautique -->
-            <div class="card">
+            <!-- Carte 8 -->
+            <div class="card" style="animation-delay: 0.4s;">
                 <div class="card-img-wrapper">
                     <img src="./bureautique.jpg" alt="Secrétariat Bureautique">
                     <span class="type-tag">Présentiel & Ligne</span>
                 </div>
                 <div class="card-body">
                     <h3 class="card-title">Secrétariat Bureautique</h3>
-                    <p class="card-slogan">« Devenez la cheville ouvrière d'une organisation efficace et professionnelle. »</p>
+                    <p class="card-slogan">« Devenez la cheville ouvrière d'une organisation efficace. »</p>
                     <p class="card-description">Maîtrise du Pack Office (Word, Excel, PowerPoint), rédaction administrative et gestion documentaire.</p>
                     <div class="card-tarifs">
-                        <strong>Formules & Tarifs :</strong>
+                        <strong>Tarifs & Durée :</strong>
                         • 1 Jour Découverte : 10 000 FCFA<br>
                         • 8 Mois Pro : 375 000 F / 500 000 F
                     </div>
-                    <a href="inscription.html?formation=Secrétariat Bureautique" class="btn-inscription"> S'inscrire à cette formation</a>
+                    <a href="inscription.html?formation=Secrétariat Bureautique" class="btn-inscription">S'inscrire maintenant <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
 
-            <!-- Carte 9 : Comptabilité Informatisée et Gestion -->
-            <div class="card">
+            <!-- Carte 9 -->
+            <div class="card" style="animation-delay: 0.45s;">
                 <div class="card-img-wrapper">
-                    <img src="./compta.jpg" alt="Comptabilité Informatisée et Gestion">
+                    <img src="./compta.jpg" alt="Comptabilité Informatisée">
                     <span class="type-tag">Présentiel & Ligne</span>
                 </div>
                 <div class="card-body">
                     <h3 class="card-title">Comptabilité Informatisée & Gestion</h3>
-                    <p class="card-slogan">« Pilotez les finances des entreprises avec les logiciels de gestion leaders du marché. »</p>
+                    <p class="card-slogan">« Pilotez les finances avec les logiciels leaders du marché. »</p>
                     <p class="card-description">Gestion comptable, logiciel SAGE Saari, bilans financiers, fiscalité et suivi de trésorerie.</p>
                     <div class="card-tarifs">
-                        <strong>Formules & Tarifs :</strong>
+                        <strong>Tarifs & Durée :</strong>
                         • 1 Jour Initiation : 10 000 FCFA<br>
                         • 8 Mois Pro : 375 000 F / 500 000 F
                     </div>
-                    <a href="inscription.html?formation=Comptabilité Informatisée et Gestion" class="btn-inscription"> S'inscrire à cette formation</a>
+                    <a href="inscription.html?formation=Comptabilité Informatisée et Gestion" class="btn-inscription">S'inscrire maintenant <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
 
-            <!-- Carte 10 : Auxiliaire de Vie -->
-            <div class="card">
+            <!-- Carte 10 -->
+            <div class="card" style="animation-delay: 0.5s;">
                 <div class="card-img-wrapper">
                     <img src="./auxiliaire.jpg" alt="Auxiliaire de Vie">
                     <span class="type-tag">Présentiel</span>
                 </div>
                 <div class="card-body">
                     <h3 class="card-title">Auxiliaire de Vie</h3>
-                    <p class="card-slogan">« Apportez soin, assistance et soutien aux personnes dépendantes au quotidien. »</p>
+                    <p class="card-slogan">« Apportez soin, assistance et soutien au quotidien. »</p>
                     <p class="card-description">Accompagnement sanitaire et social, soins de base, hygiène et premiers secours.</p>
                     <div class="card-tarifs">
-                        <strong>Formules & Tarifs :</strong>
+                        <strong>Tarifs & Durée :</strong>
                         • 8 Mois Pro : 375 000 F / 500 000 F<br>
                         • 12 Mois Complexe : 650 000 FCFA
                     </div>
-                    <a href="inscription.html?formation=Auxiliaire de Vie" class="btn-inscription"> S'inscrire à cette formation</a>
+                    <a href="inscription.html?formation=Auxiliaire de Vie" class="btn-inscription">S'inscrire maintenant <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
 
-            <!-- Carte 11 : Esthétique Cosmétique -->
-            <div class="card">
+            <!-- Carte 11 -->
+            <div class="card" style="animation-delay: 0.55s;">
                 <div class="card-img-wrapper">
-                    <img src="./esthetique.jpg" alt="Esthétique Cosmétique">
+                    <img src="./esthetique.jpg" alt="Esthétique">
                     <span class="type-tag">Présentiel</span>
                 </div>
                 <div class="card-body">
                     <h3 class="card-title">Esthétique Cosmétique</h3>
-                    <p class="card-slogan">« Sublimez la beauté et maîtrisez les techniques de soins corporels et esthétiques modernes. »</p>
+                    <p class="card-slogan">« Sublimez la beauté avec des soins corporels modernes. »</p>
                     <p class="card-description">Soins du visage, maquillage pro, esthétique corporelle et cosmétologie.</p>
                     <div class="card-tarifs">
-                        <strong>Formules & Tarifs :</strong>
+                        <strong>Tarifs & Durée :</strong>
                         • 8 Mois Pro : 375 000 F / 500 000 F<br>
                         • 12 Mois Cursus : 650 000 FCFA
                     </div>
-                    <a href="inscription.html?formation=Esthétique Cosmétique" class="btn-inscription"> S'inscrire à cette formation</a>
+                    <a href="inscription.html?formation=Esthétique Cosmétique" class="btn-inscription">S'inscrire maintenant <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
 
-            <!-- Carte 12 : Coiffure Professionnelle -->
-            <div class="card">
+            <!-- Carte 12 -->
+            <div class="card" style="animation-delay: 0.6s;">
                 <div class="card-img-wrapper">
-                    <img src="./coiffure.jpg" alt="Coiffure Professionnelle">
+                    <img src="./coiffure.jpg" alt="Coiffure">
                     <span class="type-tag">Présentiel</span>
                 </div>
                 <div class="card-body">
                     <h3 class="card-title">Coiffure Professionnelle</h3>
-                    <p class="card-slogan">« Exprimez votre créativité et devenez un styliste visagiste accompli. »</p>
+                    <p class="card-slogan">« Exprimez votre créativité et devenez un styliste accompli. »</p>
                     <p class="card-description">Techniques de coupe, coloration, coiffure événementielle et soins capillaires.</p>
                     <div class="card-tarifs">
-                        <strong>Formules & Tarifs :</strong>
+                        <strong>Tarifs & Durée :</strong>
                         • 8 Mois Pro : 375 000 F / 500 000 F
                     </div>
-                    <a href="inscription.html?formation=Coiffure Professionnelle" class="btn-inscription"> S'inscrire à cette formation</a>
+                    <a href="inscription.html?formation=Coiffure Professionnelle" class="btn-inscription">S'inscrire maintenant <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
 
-            <!-- Carte 13 : Stylisme Modélisme -->
-            <div class="card">
+            <!-- Carte 13 -->
+            <div class="card" style="animation-delay: 0.65s;">
                 <div class="card-img-wrapper">
-                    <img src="./stylisme.jpg" alt="Stylisme Modélisme">
+                    <img src="./stylisme.jpg" alt="Stylisme">
                     <span class="type-tag">Présentiel</span>
                 </div>
                 <div class="card-body">
                     <h3 class="card-title">Stylisme Modélisme</h3>
-                    <p class="card-slogan">« Créez vos propres collections de mode de la conception à la couture. »</p>
+                    <p class="card-slogan">« Créez vos propres collections de la conception à la couture. »</p>
                     <p class="card-description">Dessin de mode, patronnage, coupe, assemblage et création de vêtements sur-mesure.</p>
                     <div class="card-tarifs">
-                        <strong>Formules & Tarifs :</strong>
+                        <strong>Tarifs & Durée :</strong>
                         • 8 Mois Pro : 375 000 F / 500 000 F<br>
                         • 12 Mois Cursus : 650 000 FCFA
                     </div>
-                    <a href="inscription.html?formation=Stylisme Modélisme" class="btn-inscription"> S'inscrire à me former</a>
+                    <a href="inscription.html?formation=Stylisme Modélisme" class="btn-inscription">S'inscrire maintenant <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
 
-            <!-- Carte 14 : Automatisation & Robotique -->
-            <div class="card">
+            <!-- Carte 14 -->
+            <div class="card" style="animation-delay: 0.7s;">
                 <div class="card-img-wrapper">
-                    <img src="./robotique.jpg" alt="Automatisation et Robotique">
+                    <img src="./robotique.jpg" alt="Robotique">
                     <span class="type-tag">Présentiel & Ligne</span>
                 </div>
                 <div class="card-body">
                     <h3 class="card-title">Automatisation & Robotique</h3>
-                    <p class="card-slogan">« Concevez les systèmes intelligents et automatisés du monde de demain. »</p>
+                    <p class="card-slogan">« Concevez les systèmes automatisés de demain. »</p>
                     <p class="card-description">Programmation de cartes électroniques, mécatronique et systèmes industriels automatisés.</p>
                     <div class="card-tarifs">
-                        <strong>Formules & Tarifs :</strong>
+                        <strong>Tarifs & Durée :</strong>
                         • 8 Mois Pro : 375 000 F / 500 000 F<br>
                         • 12 Mois Complexe : 650 000 FCFA
                     </div>
-                    <a href="inscription.html?formation=Automatisation et Robotique" class="btn-inscription"> S'inscrire à cette formation</a>
+                    <a href="inscription.html?formation=Automatisation et Robotique" class="btn-inscription">S'inscrire maintenant <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
 
-            <!-- Carte 15 : Télécommunication -->
-            <div class="card">
+            <!-- Carte 15 -->
+            <div class="card" style="animation-delay: 0.75s;">
                 <div class="card-img-wrapper">
                     <img src="./telecom.jpg" alt="Télécommunication">
                     <span class="type-tag">Présentiel & Ligne</span>
                 </div>
                 <div class="card-body">
                     <h3 class="card-title">Télécommunication</h3>
-                    <p class="card-slogan">« Reliez les hommes et les entreprises grâce aux réseaux de télécoms avancés. »</p>
+                    <p class="card-slogan">« Maîtrisez les réseaux de télécoms avancés et la fibre. »</p>
                     <p class="card-description">Réseaux cellulaires, fibre optique, installation et maintenance des équipements télécoms.</p>
                     <div class="card-tarifs">
-                        <strong>Formules & Tarifs :</strong>
+                        <strong>Tarifs & Durée :</strong>
                         • 8 Mois Pro : 375 000 F / 500 000 F<br>
                         • 12 Mois Complexe : 650 000 FCFA
                     </div>
-                    <a href="inscription.html?formation=Télécommunication" class="btn-inscription"> S'inscrire à cette formation</a>
+                    <a href="inscription.html?formation=Télécommunication" class="btn-inscription">S'inscrire maintenant <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
 
-            <!-- Carte 16 : Commerce International -->
-            <div class="card">
+            <!-- Carte 16 -->
+            <div class="card" style="animation-delay: 0.8s;">
                 <div class="card-img-wrapper">
                     <img src="./commerce_inter.jpg" alt="Commerce International">
                     <span class="type-tag">Présentiel & Ligne</span>
                 </div>
                 <div class="card-body">
                     <h3 class="card-title">Commerce International</h3>
-                    <p class="card-slogan">« Dominez les opérations d'import-export et les échanges commerciaux mondiaux. »</p>
+                    <p class="card-slogan">« Dominez les opérations d'import-export mondiales. »</p>
                     <p class="card-description">Procédures douanières, logistique internationale, négociation et Incoterms.</p>
                     <div class="card-tarifs">
-                        <strong>Formules & Tarifs :</strong>
+                        <strong>Tarifs & Durée :</strong>
                         • 8 Mois Pro : 375 000 F / 500 000 F<br>
                         • 12 Mois Cursus : 650 000 FCFA
                     </div>
-                    <a href="inscription.html?formation=Commerce International" class="btn-inscription"> S'inscrire à cette formation</a>
+                    <a href="inscription.html?formation=Commerce International" class="btn-inscription">S'inscrire maintenant <i class="fas fa-arrow-right"></i></a>
                 </div>
+            </div>
+
+            <div class="no-results" id="noResults">
+                <i class="fas fa-search-minus"></i>
+                <h3>Aucune formation trouvée</h3>
+                <p style="color: var(--text-muted);">Essayez avec un autre mot-clé comme "IA", "Web", "Commerce"...</p>
             </div>
 
         </div>
@@ -509,12 +791,14 @@
 
     <footer>
         <div class="footer-content">
-            <span><i class="fas fa-map-marker-alt"></i> Douala (Akwa face ancien orca, Portail noir demandez le docteur) & Yaoundé (Cité Verte / Nkomo)</span>
-            <span><i class="fas fa-phone"></i> +237 678 280 189 / 657 850 197</span>
-            <span><i class="fas fa-globe"></i> Présentiel & En Ligne</span>
+            <span><i class="fas fa-map-marker-alt"></i> Douala (Akwa) & Yaoundé (Cité Verte / Nkomo)</span>
+            <span><i class="fas fa-phone-alt"></i> +237 678 280 189 / 657 850 197</span>
+            <span><i class="fas fa-globe"></i> Formations Présentiel & En Ligne</span>
         </div>
         <p style="font-size: 0.85rem; color: #64748B;">&copy; 2026 TTES-ICG ACADEMY. Tous droits réservés.</p>
     </footer>
-</script>
+
+<!-- Script principal externe -->
+    <script src="script.js"></script>
 </body>
 </html>

@@ -158,3 +158,112 @@ button:hover {
     background: none;
     transform: translateY(-50%) scale(1.1);
 }
+/* ==========================================
+   VARIABLES DE THÈME (Mode Sombre par défaut)
+   ========================================== */
+:root {
+    --bg-primary: #0f172a;        /* Fond principal sombre */
+    --bg-secondary: #1e293b;      /* Fond des cartes et header */
+    --text-primary: #f8fafc;      /* Texte principal clair */
+    --text-secondary: #94a3b8;    /* Texte secondaire */
+    --card-bg: rgba(30, 41, 59, 0.7);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --accent-blue: #38bdf8;
+    --accent-indigo: #6366f1;
+    --shadow-color: rgba(0, 0, 0, 0.4);
+}
+
+/* ==========================================
+   THÈME CLAIR (Activé sur le body)
+   ========================================== */
+body.light-mode {
+    --bg-primary: #f8fafc !important;        
+    --bg-secondary: #ffffff !important;      
+    --text-primary: #0f172a !important;      
+    --text-secondary: #475569 !important;    
+    --card-bg: rgba(255, 255, 255, 0.9) !important;
+    --border-color: rgba(0, 0, 0, 0.1) !important;
+    --shadow-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Application globale des variables */
+body {
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Forcer tous les conteneurs à écouter les variables */
+header, nav, .card, footer, section, div.container, main {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Forcer la couleur des titres et textes */
+h1, h2, h3, h4, h5, h6, strong {
+    color: var(--text-primary);
+}
+
+p, span, .text-muted, small, label {
+    color: var(--text-secondary);
+}
+
+/* Style du bouton Thème */
+.theme-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.theme-toggle-btn:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent-blue);
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+/* ==========================================
+   FORCE L'APPLICATION DU MODE CLAIR
+   ========================================== */
+body.light-mode {
+    background-color: #f8fafc !important;
+    color: #0f172a !important;
+}
+
+body.light-mode header,
+body.light-mode nav,
+body.light-mode footer,
+body.light-mode section,
+body.light-mode div,
+body.light-mode .card,
+body.light-mode .hero,
+body.light-mode .container,
+body.light-mode input,
+body.light-mode select {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #e2e8f0 !important;
+}
+
+body.light-mode h1,
+body.light-mode h2,
+body.light-mode h3,
+body.light-mode h4,
+body.light-mode strong {
+    color: #0f172a !important;
+}
+
+body.light-mode p,
+body.light-mode span,
+body.light-mode label {
+    color: #475569 !important;
+}

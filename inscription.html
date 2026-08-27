@@ -3,137 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inscription - TTES-ICG ACADEMY</title>
+    <title>Pré-inscription - TTES-ICG ACADEMY</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root { --primary: #0F172A; --accent: #2563EB; --bg: #F8FAFC; }
-        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; }
-        body { background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        .card { background: white; padding: 35px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); width: 100%; max-width: 480px; border: 1px solid #E2E8F0; }
-        h2 { color: var(--primary); font-size: 24px; text-align: center; margin-bottom: 8px; font-weight: 800; }
-        p.subtitle { text-align: center; color: #64748B; font-size: 14px; margin-bottom: 25px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body { background: var(--bg); padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .card { background: white; padding: 35px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); width: 100%; max-width: 550px; border: 1px solid #E2E8F0; }
+        h2 { color: var(--primary); font-size: 24px; text-align: center; margin-bottom: 8px; font-weight: 700; }
+        p.subtitle { text-align: center; color: #64748B; margin-bottom: 25px; font-size: 14px; }
         .form-group { margin-bottom: 18px; }
         label { display: block; margin-bottom: 6px; font-weight: 600; color: #334155; font-size: 14px; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 15px; background-color: #F8FAFC; }
-        input:focus, select:focus { outline: none; border-color: var(--accent); background-color: white; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-        button { width: 100%; padding: 14px; background: var(--accent); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.2s; margin-top: 10px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 15px; outline: none; transition: 0.2s; }
+        input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        button { width: 100%; padding: 14px; background: var(--accent); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
         button:hover { background: #1D4ED8; }
-        button:disabled { background: #94A3B8; cursor: not-allowed; }
-        .msg-success { color: #16A34A; text-align: center; font-weight: 600; margin-top: 15px; display: none; }
-        .msg-error { color: #DC2626; text-align: center; font-weight: 600; margin-top: 15px; display: none; }
         .back-link { display: block; text-align: center; margin-top: 20px; color: #64748B; text-decoration: none; font-size: 14px; }
-        .back-link:hover { color: var(--accent); }
+        .back-link:hover { color: var(--primary); }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>⚡ Formulaire d'Inscription</h2>
-    <p class="subtitle">Rejoignez TTES-ICG ACADEMY et lancez votre carrière</p>
-    
+    <h2>Formulaire de Pré-inscription</h2>
+    <p class="subtitle">Réservez votre place dès aujourd'hui chez TTES-ICG ACADEMY</p>
+
     <form id="inscriptionForm">
         <div class="form-group">
-            <label for="nom">Nom complet</label>
-            <input type="text" id="nom" placeholder="Ex: Jean Dupont" required>
+            <label for="nom">Nom complet *</label>
+            <input type="text" id="nom" required placeholder="Ex: Jean Dupont">
         </div>
+
         <div class="form-group">
-            <label for="email">Adresse E-mail</label>
-            <input type="email" id="email" placeholder="Ex: exemple@mail.com" required>
+            <label for="email">Adresse E-mail *</label>
+            <input type="email" id="email" required placeholder="Ex: jean.dupont@gmail.com">
         </div>
+
         <div class="form-group">
-            <label for="telephone">Numéro de Téléphone (WhatsApp)</label>
-            <input type="tel" id="telephone" placeholder="Ex: +237 600 000 000" required>
+            <label for="telephone">Numéro de Téléphone (WhatsApp) *</label>
+            <input type="tel" id="telephone" required placeholder="Ex: +237 678280189">
         </div>
+
         <div class="form-group">
-            <label for="formation">Formation souhaitée</label>
+            <label for="dateNaissance">Date de Naissance</label>
+            <input type="date" id="dateNaissance">
+        </div>
+
+        <div class="form-group">
+            <label for="formation">Formation choisie *</label>
             <select id="formation" required>
                 <option value="">-- Sélectionnez une formation --</option>
-                <option value="Administration BDD">Administration de Bases de Données</option>
+                <option value="Administration de Bases de Données">Administration de Bases de Données</option>
                 <option value="Intelligence Artificielle">Intelligence Artificielle (IA)</option>
-                <option value="Community Management">Community Management & E-Commerce</option>
+                <option value="Community Management & E-Commerce">Community Management & E-Commerce</option>
                 <option value="Montage Audio-Visuel">Montage Audio-Visuel</option>
-                <option value="Management Entreprises">Management des Entreprises</option>
-                <option value="Pack Spécial 4 en 1">Pack Spécial 4 en 1</option>
-                <option value="Secrétariat bureautique">Secrétariat bureautique</option>
-                <option value="Comptabilité Informatisée et Gestion">Comptabilité Informatisée et Gestion</option>
-                <option value="Auxiliaire de vie">Auxiliaire de vie</option>
+                <option value="Management des Entreprises">Management des Entreprises</option>
+                <option value="Pack Spécial 4 en 1">Pack Spécial 4 en 1 (MLM & Distribution)</option>
+                <option value="Développement Web">Développement Web</option>
+                <option value="Secrétariat Bureautique">Secrétariat Bureautique</option>
+                <option value="Comptabilité Informatisée et Gestion">Comptabilité Informatisée & Gestion</option>
+                <option value="Auxiliaire de Vie">Auxiliaire de Vie</option>
                 <option value="Esthétique Cosmétique">Esthétique Cosmétique</option>
                 <option value="Coiffure Professionnelle">Coiffure Professionnelle</option>
                 <option value="Stylisme Modélisme">Stylisme Modélisme</option>
-                <option value="Développement Web">Développement Web</option>
-                <option value="Automatisation & Robotique">Automatisation & Robotique</option>
+                <option value="Automatisation et Robotique">Automatisation & Robotique</option>
                 <option value="Télécommunication">Télécommunication</option>
                 <option value="Commerce International">Commerce International</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label for="mode_formation">Mode de formation souhaité :</label>
+            <label for="mode_formation">Mode de Formation *</label>
             <select id="mode_formation" required>
-                <option value="" disabled selected>-- Choisissez votre mode --</option>
-                <option value="Présentiel (Douala / Yaoundé)">🏫 En Présentiel (Campus Douala ou Yaoundé)</option>
-                <option value="En Ligne">💻 100% En Ligne (À distance)</option>
+                <option value="Présentiel">Présentiel (Douala / Yaoundé)</option>
+                <option value="En Ligne">En Ligne (100% à distance)</option>
             </select>
         </div>
 
-        <button type="submit" id="btnSubmit">Valider mon inscription</button>
-        <div id="msgSuccess" class="msg-success">✅ Votre inscription a été enregistrée avec succès !</div>
-        <div id="msgError" class="msg-error">❌ Une erreur est survenue, veuillez réessayer.</div>
+        <button type="submit">Valider mon inscription</button>
     </form>
-    
-    <a href="index.html" class="back-link">← Retour au catalogue</a>
+
+    <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Retour au catalogue</a>
 </div>
 
-<script>
-    document.getElementById('inscriptionForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const nom = document.getElementById('nom').value;
-        const email = document.getElementById('email').value;
-        const telephone = document.getElementById('telephone').value;
-        const formation = document.getElementById('formation').value;
-        const mode_formation = document.getElementById('mode_formation').value;
-
-        const btnSubmit = document.getElementById('btnSubmit');
-        const msgSuccess = document.getElementById('msgSuccess');
-        const msgError = document.getElementById('msgError');
-
-        btnSubmit.disabled = true;
-        btnSubmit.textContent = "Envoi en cours...";
-        msgSuccess.style.display = 'none';
-        msgError.style.display = 'none';
-
-        try {
-            const res = await fetch('/api/inscription', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nom, email, telephone, formation, mode_formation })
-            });
-
-            const data = await res.json();
-
-            if (res.ok && data.success) {
-                msgSuccess.textContent = "✅ Inscription réussie ! Redirection en cours...";
-                msgSuccess.style.display = 'block';
-                document.getElementById('inscriptionForm').reset();
-
-                if (data.id) {
-                    setTimeout(() => {
-                        window.location.href = `espace-etudiant.html?id=${data.id}`;
-                    }, 1500);
-                }
-            } else {
-                throw new Error(data.message || "Erreur lors de l'inscription");
-            }
-        } catch (err) {
-            console.error("Erreur Inscription :", err);
-            msgError.textContent = err.message || "❌ Une erreur est survenue, veuillez réessayer.";
-            msgError.style.display = 'block';
-        } finally {
-            btnSubmit.disabled = false;
-            btnSubmit.textContent = "Valider mon inscription";
-        }
-    });
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>

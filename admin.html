@@ -3,175 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin Pro - TTES-ICG</title>
+    <title>Administration - TTES-ICG ACADEMY</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* Variables CSS pour un design cohérent et pro */
-        :root {
-            --primary: #4F46E5;
-            --primary-hover: #4338CA;
-            --success: #10B981;
-            --bg-body: #F3F4F6;
-            --bg-card: #FFFFFF;
-            --text-main: #1F2937;
-            --text-muted: #6B7280;
-        }
-        
-        * { box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
-        body { background-color: var(--bg-body); margin: 0; padding: 40px 20px; color: var(--text-main); }
-        
-        .container { 
-            max-width: 1100px; 
-            margin: auto; 
-            background: var(--bg-card); 
-            padding: 30px 40px; 
-            border-radius: 16px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
-        }
-
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        h1 { margin: 0; font-size: 26px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
-        
-        .actions { display: flex; gap: 12px; }
-        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px;}
-        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2); }
-        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
-        .btn-success { background: var(--success); color: white; }
-        
-        /* Barre de recherche de génie */
-        .search-container { margin-bottom: 20px; position: relative; }
-        .search-input {
-            width: 100%;
-            padding: 12px 15px 12px 40px;
-            border: 1px solid #E5E7EB;
-            border-radius: 10px;
-            font-size: 15px;
-            transition: all 0.3s ease;
-            background: #F9FAFB url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%239CA3AF" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>') no-repeat 15px center;
-        }
-        .btn-primary {
-             background-color: #007bff;
-             color: white;
-             padding: 10px 15px;
-             text-decoration: none;
-             border-radius: 5px;
-             display: inline-block;
-             font-weight: bold;
-}
-
-.btn-primary:hover {
-    background-color: #0056b3;
-}
-        .search-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); background-color: white; }
-
-        /* Le Tableau Pro */
-        table { width: 100%; border-collapse: separate; border-spacing: 0; }
-        th, td { padding: 16px; text-align: left; border-bottom: 1px solid #F3F4F6; font-size: 14px; }
-        th { background-color: #F9FAFB; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; }
-        th:first-child { border-top-left-radius: 8px; } th:last-child { border-top-right-radius: 8px; }
-        tr { transition: background 0.2s ease; }
-        tr:hover { background-color: #F9FAFB; }
-        
-        /* Les Badges Premium */
-        .badge { background: #EEF2FF; color: var(--primary); padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 12px; letter-spacing: 0.3px; }
-        .id-text { color: var(--text-muted); font-family: monospace; font-size: 13px; }
+        :root { --primary: #0F172A; --accent: #2563EB; --bg: #F8FAFC; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body { background: var(--bg); color: #1E293B; }
+        header { background: var(--primary); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { font-size: 20px; }
+        .btn-logout { background: #EF4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .btn-export { background: #16A34A; color: white; text-decoration: none; padding: 10px 18px; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; }
+        .table-card { background: white; border-radius: 12px; border: 1px solid #E2E8F0; overflow-x: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+        th { background: #F1F5F9; color: #475569; padding: 14px; font-weight: 700; border-bottom: 1px solid #E2E8F0; }
+        td { padding: 14px; border-bottom: 1px solid #F1F5F9; color: #334155; }
+        tr:hover { background: #F8FAFC; }
+        .btn-delete { background: #FEE2E2; color: #DC2626; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .btn-delete:hover { background: #FCA5A5; }
     </style>
 </head>
 <body>
 
+<header>
+    <h1><i class="fas fa-user-shield"></i> Administration - TTES-ICG ACADEMY</h1>
+    <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Déconnexion</button>
+</header>
+
 <div class="container">
-    <div class="header">
-        <h1> TTES-ICG Control Center</h1>
-        <div class="actions">
-            <button class="btn btn-primary" onclick="chargerInscriptions()">🔄 Actualiser</button>
-            <a href="/index.html" class="btn btn-primary" target="_blank" style="background:#2563EB; color:white; text-decoration:none;">➕ Ajouter un étudiant</a>
-            <a href="/api/admin/export-csv" class="btn btn-success">📥 Export Excel</a>
-            <button class="btn" style="background:#EF4444; color:white;" onclick="deconnexion()">🚪 Déconnexion</button>
-        </div>
+    <div class="toolbar">
+        <h2>Inscriptions enregistrées</h2>
+        <a href="/api/admin/export-csv" class="btn-export"><i class="fas fa-file-excel"></i> Exporter au format Excel (CSV)</a>
     </div>
 
-    <!-- Moteur de recherche temps réel -->
-    <div class="search-container">
-        <input type="text" id="searchInput" class="search-input" placeholder="Rechercher un étudiant par nom, email ou formation..." onkeyup="filtrerTableau()">
+    <div class="table-card">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Téléphone</th>
+                    <th>Email</th>
+                    <th>Formation</th>
+                    <th>Mode</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="inscriptionsTable">
+                <tr><td colspan="8" style="text-align: center;">Chargement des données...</td></tr>
+            </tbody>
+        </table>
     </div>
-
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nom Complet</th>
-                <th>Contact</th>
-                <th>Formation</th>
-                <th>Date d'inscription</th>
-            </tr>
-        </thead>
-        <tbody id="tableauInscriptions">
-            <tr><td colspan="5" style="text-align: center; color: #6B7280; padding: 30px;">Chargement des données...</td></tr>
-        </tbody>
-    </table>
 </div>
 
 <script>
-    // 1. Vérification de la session admin
-    // S'il n'y a pas de jeton valide dans le navigateur, on redirige vers le login
-    const token = localStorage.getItem('adminToken');
-    if (token !== 'session_admin_active_ttes_2026') {
+    // Vérification de la session
+    if (!localStorage.getItem('adminToken')) {
         window.location.href = '/login.html';
     }
 
-    // 2. Fonction de déconnexion
-    function deconnexion() {
-        localStorage.removeItem('adminToken'); // Efface la clé
-        window.location.href = '/login.html';   // Redirige vers la page de login
+    function logout() {
+        localStorage.removeItem('adminToken');
+        window.location.href = '/login.html';
     }
 
-    // 3. Charger la liste des étudiants
-    async function chargerInscriptions() {
-        const tbody = document.getElementById('tableauInscriptions');
-        if (!tbody) return;
-
+    async function loadInscriptions() {
+        const tableBody = document.getElementById('inscriptionsTable');
         try {
             const res = await fetch('/api/admin/inscriptions');
             const data = await res.json();
 
-            if (data.success && data.inscriptions && data.inscriptions.length > 0) {
-                tbody.innerHTML = '';
-                data.inscriptions.forEach(user => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td class="id-text">#${String(user.id).padStart(4, '0')}</td>
-                        <td style="font-weight: 600; color: #111827;">${user.nom || 'Sans nom'}</td>
+            if (data.success && data.inscriptions.length > 0) {
+                tableBody.innerHTML = data.inscriptions.map(item => `
+                    <tr>
+                        <td><strong>#${item.id}</strong></td>
+                        <td>${item.nom}</td>
+                        <td><a href="https://wa.me/${item.telephone.replace(/[^0-9]/g, '')}" target="_blank" style="color:#2563EB; text-decoration:none;"><i class="fab fa-whatsapp"></i> ${item.telephone}</a></td>
+                        <td>${item.email}</td>
+                        <td><strong>${item.formation}</strong></td>
+                        <td>${item.mode_formation || 'Présentiel'}</td>
+                        <td>${new Date(item.date_inscription).toLocaleDateString('fr-FR')}</td>
                         <td>
-                            <div>${user.email || 'Pas d\'email'}</div>
-                            <div style="color: #6B7280; font-size: 12px; margin-top: 4px;">📞 ${user.telephone || 'Non renseigné'}</div>
+                            <button class="btn-delete" onclick="supprimerInscrit(${item.id})"><i class="fas fa-trash"></i></button>
                         </td>
-                        <td><span class="badge">${user.formation || 'Non spécifiée'}</span></td>
-                        <td style="color: #6B7280;">${user.date_inscription ? new Date(user.date_inscription).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
+                    </tr>
+                `).join('');
             } else {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #6B7280; padding: 30px;">Aucune inscription pour le moment.</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Aucune inscription enregistrée pour le moment.</td></tr>';
             }
         } catch (err) {
-            console.error("Erreur de récupération :", err);
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #EF4444; padding: 30px;">Erreur de connexion au serveur.</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: red;">Erreur lors du chargement des données.</td></tr>';
         }
     }
 
-    // 4. Moteur de recherche instantané
-    function filtrerTableau() {
-        const input = document.getElementById("searchInput");
-        if (!input) return;
-        const filter = input.value.toLowerCase();
-        const tbody = document.getElementById("tableauInscriptions");
-        const trs = tbody.getElementsByTagName("tr");
-
-        for (let i = 0; i < trs.length; i++) {
-            const rowText = trs[i].textContent.toLowerCase();
-            trs[i].style.display = rowText.includes(filter) ? "" : "none";
+    async function supprimerInscrit(id) {
+        if (confirm("Êtes-vous sûr de vouloir supprimer cette inscription ?")) {
+            try {
+                const res = await fetch(`/api/etudiant/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (data.success) {
+                    loadInscriptions();
+                } else {
+                    alert("Erreur lors de la suppression.");
+                }
+            } catch (err) {
+                alert("Impossible de communiquer avec le serveur.");
+            }
         }
     }
 
-    // 5. Lancement au chargement du DOM
-    document.addEventListener('DOMContentLoaded', chargerInscriptions);
+    loadInscriptions();
 </script>
+</body>
+</html>
